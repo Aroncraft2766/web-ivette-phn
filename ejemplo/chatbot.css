@@ -1,0 +1,468 @@
+.taia_iframe {
+	border-radius: 12px;
+	overflow: hidden;
+	position: fixed;
+	z-index: 10000;
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+	            0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.iframe-mobile {
+	bottom: 0;
+	right: 0;
+}
+
+.iframe-desktop {
+	bottom: 20px;
+	right: 20px;
+}
+
+.taia-minimizeBtn {
+	align-items: center;
+	border-radius: 4px;
+	cursor: pointer;
+	display: flex;
+	height: 1.5rem;
+	justify-content: center;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	width: 1.5rem;
+	z-index: 10001;
+	background-color: #e5e7eb;
+	font-size: 1.25rem;
+	line-height: 1.75rem;
+}
+
+.taia-bubble-box {
+ position: absolute;
+  top: 48px;
+  left: -1px;
+  width: 380px;
+  max-width: 95vw;
+  padding-top: 8px;
+  border-radius: 10px;
+  border: none;
+  z-index: 9999;
+}
+
+.taia-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	text-align: left;
+}
+
+.taia-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+}
+
+.taia-header-text {
+	font-size: 14px;
+	line-height: 1.25rem;
+	margin: 0;
+	padding-right: 1.25rem;
+	color: #000000;
+}
+
+.taia-bubble-close {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.taia-bubble-close::before,
+.taia-bubble-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  background-color: #000;
+  transition: transform 0.2s ease-in-out;
+}
+
+.taia-bubble-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.taia-bubble-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.taia-tags-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.taia-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.taia-tag {
+  background: #C54D56;
+  border-radius: 1000px;
+  padding: 8px 16px;
+  font-family: "Visuelt Pro", sans-serif;
+  font-size: 14px;
+  line-height: 19.6px;
+  color: #ffffff;
+  max-width: 320px;
+  display: inline-flex;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    transform .35s cubic-bezier(.22,1,.36,1),
+    opacity .25s ease;
+}
+.taia-tag.visible,
+.taia-pill-row.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.taia-tag:hover {
+  background: #C54D56BF;  
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.taia-tag:focus-visible {
+  outline: none;
+  background: #B53942;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 0 5px rgba(168, 99, 97, 0.6);
+}
+.taia-tooltip-close {
+  border-radius: 50%;
+  background: #29221d66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 7px;
+  transition: opacity 0.3s ease;
+}
+
+.taia-tooltip-close-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.taia-float-button {
+	background-color: transparent;
+	border-radius: 6px;
+	border: none;
+	bottom: 20px;
+	cursor: pointer;
+	display: none;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	padding: 0.625rem 1.25rem;
+	position: fixed;
+	right: 20px;
+	z-index: 9999;
+	color: #ffffff;
+}
+.button-icon {
+	display: block;
+	height: auto;
+	width: auto;
+}
+
+.taia-tooltip {
+	box-sizing: border-box;
+	display: flex;
+	left: 156px;
+	position: absolute;
+	top: 45px;
+	width: 330px;
+	z-index: 9999;
+	align-items: flex-start;
+	border-radius: 6px;
+	border: 1px solid #DFDEE3;
+	gap: 0.5rem;
+	transform: translateX(-50%);
+	background-color: #FFFFFF;
+	font-family: Visuelt, sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.25;
+	padding: 0.75rem;
+	color: #1A202C;
+	opacity: 1;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+	            0 2px 4px -2px rgba(0, 0, 0, 0.1);
+	transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.taia-tooltip.visible {
+  opacity: 1;
+}
+
+.taia-tooltip.hidden {
+  opacity: 0;
+}
+
+.taia-tooltip__content {
+	flex: 1 1 0%;
+	text-align: left;
+}
+
+.taia-tooltip__close {
+	background: none;
+	border: none;
+	cursor: pointer;
+	height: 1rem;
+	margin-left: auto;
+	padding: 0;
+	width: 1rem;
+}
+
+.taia-tooltip__close-icon {
+	height: 100%;
+	width: 100%;
+}
+
+.taia-tooltip__arrow-border {
+	position: absolute;
+	z-index: 0;
+	left: 15px;
+	top: -10px;
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid #DFDEE3;
+}
+
+.taia-tooltip__arrow-white {
+	position: absolute;
+	z-index: 20;
+	left: 16px;
+	top: -9px;
+	width: 0;
+	height: 0;
+	border-left: 9px solid transparent;
+	border-right: 9px solid transparent;
+	border-bottom: 9px solid #FFFFFF;
+}
+
+.custom-button {
+  background-color: transparent;
+  border: 0;
+  position: relative;
+  display:flex;
+  cursor: pointer;
+  padding: 0;
+}
+.relative-wrapper {
+  position: relative;
+}
+
+.scroll-touch {
+	overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.taia-chatbar {
+  position: fixed;
+  bottom: 36px;
+  right: 42px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.taia-chatbar.hidden {
+  display: none;
+}
+
+.taia-chatbar.visible {
+  display: flex;
+}
+
+
+.taia-quick-replies {
+  display: flex;
+  display: inline-flex; 
+  flex-direction: column-reverse; 
+  gap: 4px;
+  align-items: flex-start;
+   margin-right: 48px;
+}
+
+.taia-pill {
+  padding: 12px 16px;
+  max-width: 600px;
+  background: #C54D56;
+  border-radius: 1000px;
+  border: none;
+  cursor: pointer;
+
+  color: #ffffff;
+  font-size: 14px;
+  font-family: 'Visuelt Pro', sans-serif;
+  font-weight: 400;
+  line-height: 19.6px;
+  text-align: left;
+
+  /* animation base */
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease;
+}
+.taia-pill:hover {
+  background: #C54D56BF;  
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.taia-pill:focus-visible {
+  outline: none;
+  background: #B53942;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 0 5px rgba(168, 99, 97, 0.6);
+}
+
+.taia-pill.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.taia-chatbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end; 
+}
+
+.taia-chat-input-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.taia-chat-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  height: 54px;
+  padding: 4px 8px 4px 16px;
+  width: 400px;
+  flex-shrink: 0;
+  transform-origin: right; 
+  background: #ffffff;
+  border-radius: 1000px;
+  box-shadow:
+    0px 2px 4px rgba(0, 0, 0, 0.20),
+    0px 1px 2px rgba(0, 0, 0, 0.08);
+  transition: width 0.25s ease;
+}
+.taia-chat-input.expanded {
+  width: 572px;
+}
+
+.taia-chat-input__field {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  min-width: 0; 
+  font-size: 14px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  color: #191919;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taia-chat-input__field::placeholder {
+  color: rgba(41, 34, 29, 0.4);
+}
+
+
+.taia-chatbar-close {
+  flex-shrink: 0; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.send-btn,
+.close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 100px;
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  font-size: 16px;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  background: rgba(41, 34, 29, 0.4);
+  color: #ffffff;
+}
+
+
+
+@media (max-width: 768px) {
+  .taia-float-button.isProductPage {
+    bottom: 106px;
+  }
+
+  .taia-chatbar {
+    right: 40px;
+    bottom: 36px;
+    width: min(95vw, 420px);
+    padding-left: 32px;
+  }
+  .taia-chatbar.isProductPage {
+   bottom: 126px;
+  }
+
+  .taia-chat-input,
+  .taia-chat-input.expanded {
+    width: 100%;
+  }
+  .taia-pill {
+    max-width: 100%;
+    width: auto;
+  }
+
+  .taia-quick-replies {
+    width: 100%;
+  }
+
+  .taia-chat-input {
+    box-shadow:
+    0px 2px 4px rgba(0, 0, 0, 0.20),
+    0px 1px 2px rgba(0, 0, 0, 0.08);
+    transition: width 0.3s ease;
+  }
+}

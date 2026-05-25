@@ -1,0 +1,78 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -)",
+      "Bash(node -e ':*)",
+      "Bash(grep -oE 'background\\(-color\\)?:\\\\s*#[0-9a-fA-F]{3,8}' \"/home/aron/Escritorio/pagina distribuidora PHN/index.html\")",
+      "Bash(node --check \"/home/aron/Escritorio/pagina distribuidora PHN/content.js\")",
+      "Bash(node --check \"/home/aron/Escritorio/pagina distribuidora PHN/renderer.js\")",
+      "Bash(ls:*)",
+      "Bash([[ -f \"$dir/compra.html\" ]])",
+      "Bash([[ -f \"$dir/content/content.js\" ]])",
+      "Bash(python3 -c ':*)",
+      "Bash(python3:*)",
+      "Bash(grep -o 'data-product=\"[^\"]*\".\\\\{0,500\\\\}' \"/home/aron/Escritorio/pagina distribuidora PHN/productos.html\")",
+      "Bash(grep -o 'product-tile.\\\\{0,600\\\\}' \"/home/aron/Escritorio/pagina distribuidora PHN/productos.html\")",
+      "Bash(grep -o 'class=\"product-tile[^>]*>.\\\\{0,400\\\\}' \"/home/aron/Escritorio/pagina distribuidora PHN/productos.html\")",
+      "Bash(grep -o 'product-tile[^<]*.\\\\{0,800\\\\}phnAddToCart' \"/home/aron/Escritorio/pagina distribuidora PHN/productos.html\")",
+      "Bash(grep -o '.\\\\{0,200\\\\}phnAddToCart')",
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(find:*)",
+      "Skill(update-config)",
+      "Bash(sed -n 283,286p '/home/aron/Escritorio/pagina distribuidora PHN/__TRACKED_VAR__')",
+      "Bash(sed -n '646,649p' \"/home/aron/Escritorio/pagina distribuidora PHN/productos/ficha.html\")",
+      "Bash(sed -n '623,626p' \"/home/aron/Escritorio/pagina distribuidora PHN/visor.html\")",
+      "Bash(sed -n '383,386p' \"/home/aron/Escritorio/pagina distribuidora PHN/carrito.html\")",
+      "Bash(sed -n '614,617p' \"/home/aron/Escritorio/pagina distribuidora PHN/meredit-bot.html\")",
+      "Bash(mkdir:*)",
+      "Bash(identify \"/home/aron/Escritorio/pagina distribuidora PHN/assets/imagen1.webp\")",
+      "Bash(sed -i 's|family=Montserrat:wght@300;400;500;600;700;800|family=Lato:wght@300;400;700;900|g' '/home/aron/Escritorio/pagina distribuidora PHN/productos/ficha.html')",
+      "Bash(sed -i 's|'\\\\''Montserrat'\\\\''|'\\\\''Lato'\\\\''|g; s|\"Montserrat\"|\"Lato\"|g' '/home/aron/Escritorio/pagina distribuidora PHN/productos/ficha.html')",
+      "Bash(awk NR==812{print substr\\($0,1,3000\\); exit} *)",
+      "Bash(awk NR==813{print substr\\($0,1,3000\\); exit} *)",
+      "Bash(awk 'NR==813' \"productos.html\")",
+      "Bash(awk 'NR==825' \"productos.html\")",
+      "Bash(awk '/\\\\<script/{found=1} found{print NR\": \"substr\\($0,1,200\\)}' \"productos.html\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(mkdir -p \"catalogo-proher\" \"catalogo-cosmeticos\")",
+      "Bash(mv \"CATALOGO PROHER-NATURA.pdf\" \"catalogo-proher/libro.pdf\")",
+      "Bash(mv \"CatalogoCosmeticsGaby.pdf\" \"catalogo-cosmeticos/libro.pdf\")",
+      "Bash(mkdir -p productos/banners)",
+      "Bash(cp \"banners-productos/imagen1.webp\" \"productos/banners/banner-DB-6.webp\")",
+      "Bash(cp \"banners-productos/imagen2.webp\" \"productos/banners/banner-R-12.webp\")",
+      "Bash(cp \"banners-productos/imagen3.webp\" \"productos/banners/banner-H-9.webp\")",
+      "Bash(cp \"banners-productos/imagen4.webp\" \"productos/banners/banner-D-7.webp\")",
+      "Bash(pdftotext \"fichas técnicas.pdf\" -)",
+      "Bash(pdftotext \"FICHAS TECNICAS PROHER NATURA.pdf\" -)",
+      "Bash(sudo dnf *)",
+      "Bash(sudo apt-get *)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(pip install *)",
+      "PowerShell(Rename-Item *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Aron\\\\OneDrive\\\\Desktop\\\\Escritorio\\\\Web-Ivette-PHN\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Out-String)",
+      "Bash(python -c ' *)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git rm *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PostToolUse\\\",\\\"additionalContext\\\":\\\"Archivo modificado: $f — Revisa si este cambio afecta la estructura del proyecto, agrega archivos nuevos, o cambia reglas de edición. Si es así, actualiza CLAUDE.md antes de terminar.\\\"}}\"; } 2>/dev/null || true",
+            "statusMessage": "Verificando si hay que actualizar CLAUDE.md…"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+Sube aquí las imágenes del producto para esta experiencia.
+
+Nombre recomendado para la imagen principal:
+  producto.webp   (o producto.jpg / producto.png)
+
+Luego abre  Experiencia 2/content/content.js
+y actualiza el campo:
+  imageUrl: "content/images/NOMBRE_DE_TU_IMAGEN.webp"

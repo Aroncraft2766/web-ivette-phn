@@ -1,0 +1,30 @@
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/settings.json
+
+# Axonia
+.axonia-backups/
+.axonia-trash/
+
+# Local env
+.env
+.env.local
+
+# Node
+node_modules/
+.vercel/
+
+# PDFs — demasiado grandes para git (hasta 402 MB). Hospedar en Google Drive.
+# Actualiza los pdfUrl en content.js y en cada experiencia/content.js con el link externo.
+*.pdf
+
+# Carpetas duplicadas (los archivos viven en public/)
+libros/
+animacion/
+
+# Logs
+*.log

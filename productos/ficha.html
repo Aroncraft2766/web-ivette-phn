@@ -1,0 +1,769 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1" />
+  <title id="page-title">Producto — Ale-Natura</title>
+  <!-- Fuentes (igual que productos.html) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
+  <!-- CSS igual que las páginas de experiencias -->
+  <link rel="stylesheet" href="../compra/css/base.css" />
+  <link rel="stylesheet" href="../compra/css/zmx6mwp.css" />
+  <link rel="stylesheet" href="../compra/css/component-price.css" />
+  <link rel="stylesheet" href="../compra/css/component-rte.css" />
+  <link rel="stylesheet" href="../compra/css/component-slider.css" />
+  <link rel="stylesheet" href="../compra/css/component-slider-fading.css" />
+  <link rel="stylesheet" href="../compra/css/component-accordion.css" />
+  <link rel="stylesheet" href="../compra/css/component-loading-overlay.css" />
+  <link rel="stylesheet" href="../compra/css/component-deferred-media.css" />
+  <link rel="stylesheet" href="../compra/css/component-rating.css" />
+  <link rel="stylesheet" href="../compra/css/component-pickup-availability.css" />
+  <link rel="stylesheet" href="../compra/css/section-main-product.css" />
+  <link rel="stylesheet" href="../compra/css/section-ingredients-hero.css" />
+  <link rel="stylesheet" href="../compra/css/section-rich-text.css" />
+  <link rel="stylesheet" href="../compra/css/section-multicolumn.css" />
+  <link rel="stylesheet" href="../compra/css/section-featured-product-collection.css" />
+  <link rel="stylesheet" href="../compra/css/section-fixed-video-campaign-lipo.css" />
+  <!-- JS igual que las páginas de experiencias -->
+  <script src="../compra/js/jquery-3.5.1.min.js" defer></script>
+  <script src="../compra/js/scripts.js" defer></script>
+  <script src="../compra/js/product-form.js" defer></script>
+  <script src="../compra/js/media-gallery.js" defer></script>
+  <script src="../src/features/productos/gallery-data.js"></script>
+  <!-- Modo oscuro — mismo IIFE que productos.html -->
+  <style data-shopify="">
+    @font-face { font-family: Assistant; font-weight: 400; font-style: normal; font-display: swap;
+      src: url("//solaray.com/cdn/fonts/assistant/assistant_n4.9120912a469cad1cc292572851508ca49d12e768.woff2") format("woff2"); }
+    @font-face { font-family: Assistant; font-weight: 700; font-style: normal; font-display: swap;
+      src: url("//solaray.com/cdn/fonts/assistant/assistant_n7.bf44452348ec8b8efa3aa3068825305886b1c83c.woff2") format("woff2"); }
+    :root {
+      --font-body-weight: 400; --font-heading-style: normal; --font-heading-weight: 400;
+      --font-body-scale: 1.0; --font-heading-scale: 1.0;
+      --color-base-text: 18, 18, 18; --color-base-background-1: 255, 255, 255;
+      --color-base-background-2: 243, 243, 243; --color-base-solid-button-labels: 255, 255, 255;
+      --color-base-outline-button-labels: 18, 18, 18; --color-base-accent-1: 18, 18, 18;
+      --color-base-accent-2: 38, 38, 38; --payment-terms-background-color: #FFFFFF;
+      --gradient-base-background-1: #FFFFFF; --gradient-base-background-2: #F3F3F3;
+      --gradient-base-accent-1: #121212; --gradient-base-accent-2: #262626;
+      --page-width: 120rem; --page-width-margin: 0rem;
+    }
+    *, *::before, *::after { box-sizing: inherit; }
+    html { box-sizing: border-box; font-size: calc(var(--font-body-scale) * 62.5%); height: 100%; }
+    body {
+      display: grid; grid-template-rows: auto auto 1fr auto; grid-template-columns: 100%;
+      min-height: 100%; margin: 0; font-size: 1.5rem; letter-spacing: 0.06rem;
+      line-height: calc(1 + 0.8 / var(--font-body-scale));
+      font-family: rd,-apple-system,BlinkMacSystemFont,Segoe UI,system-ui !important;
+      font-style: var(--font-body-style); font-weight: var(--font-body-weight);
+    }
+  </style>
+
+  <!-- Adaptaciones PHN para fichas de producto -->
+  <style>
+    /* Tipo badge */
+    .phn-tipo-badge {
+      display: inline-block; background: #70B62F; color: #fff;
+      font-size: 1.1rem; font-weight: 700; padding: 4px 14px;
+      border-radius: 999px; margin-bottom: 10px; letter-spacing: .04em;
+      text-transform: uppercase; font-family: -apple-system, sans-serif;
+    }
+    /* Beneficios tags */
+    .phn-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px; }
+    .phn-tag {
+      background: #edf7e4; color: #70B62F; font-size: 1.1rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 6px; border: 1px solid #c6e4a8;
+      font-family: -apple-system, sans-serif;
+    }
+
+    /* Botón Agregar al carrito */
+    .phn-cart-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 16px 24px; background: #70B62F; color: #fff;
+      border: none; border-radius: 8px; font-size: 1.5rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; margin-top: 10px;
+      transition: background .2s; text-decoration: none;
+    }
+    .phn-cart-btn:hover { background: #5a9424; }
+    .phn-cart-btn.added { background: #8ecf55; }
+
+    /* Botón Ver más / ocultar */
+    .phn-ver-mas-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 13px 24px; background: transparent; color: #70B62F;
+      border: 2px solid #70B62F; border-radius: 8px; font-size: 1.4rem;
+      font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px;
+      transition: all .2s;
+    }
+    .phn-ver-mas-btn:hover { background: #edf7e4; }
+
+    /* Sección de detalles expandible */
+    #phn-detalles { display: none; margin-top: 24px; }
+    #phn-detalles.visible { display: block; }
+    .phn-detalle-bloque {
+      border-top: 1px solid #e5e5e5; padding: 16px 0;
+    }
+    .phn-detalle-bloque h3 {
+      font-size: 1.2rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #70B62F; margin-bottom: 8px;
+      font-family: -apple-system, sans-serif;
+    }
+    .phn-detalle-bloque p {
+      font-size: 1.4rem; color: #444; line-height: 1.75;
+      font-family: -apple-system, sans-serif;
+    }
+    .phn-warn-box {
+      background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+      padding: 14px 18px; font-size: 1.3rem; color: #5d4037; line-height: 1.65;
+      font-family: -apple-system, sans-serif; margin-top: 16px;
+    }
+    .phn-warn-box strong { display: block; margin-bottom: 4px; color: #e65100; font-size: 1.3rem; }
+
+    /* Presentación destacada */
+    .phn-pres-dosis {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0;
+    }
+    @media(max-width:500px) { .phn-pres-dosis { grid-template-columns: 1fr; } }
+    .phn-mini-card {
+      background: #f0f8e8; border-radius: 8px; padding: 12px 14px;
+      font-family: -apple-system, sans-serif;
+    }
+    .phn-mini-card span { font-size: 1.1rem; font-weight: 700; color: #70B62F; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 4px; }
+    .phn-mini-card p { font-size: 1.3rem; color: #333; line-height: 1.5; margin: 0; }
+
+    /* Ocultar banner */
+    .hero-banner { display: none !important; }
+
+    /* Botón WA igual que en experiencias */
+    #buyBtn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: #25d366; border: none; padding: 16px 24px; font-size: 1.5rem;
+      font-weight: 700; border-radius: 8px; color: #fff; text-decoration: none;
+      box-shadow: 0 2px 12px rgba(37,211,102,.3); cursor: pointer; width: 100%;
+      margin-top: 12px; font-family: inherit;
+    }
+    #buyBtn:hover { background: #128c7e; }
+
+    /* ── Animaciones de entrada ─────────────────────────────── */
+    @keyframes phnFadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .product__media-wrapper {
+      animation: phnFadeUp .55s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .product__info-wrapper {
+      animation: phnFadeUp .55s cubic-bezier(.22,.61,.36,1) .15s both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .product__media-wrapper, .product__info-wrapper { animation: none; }
+    }
+
+
+
+    /* ── Galería de miniaturas ──────────────────────────────── */
+    #phn-gallery-thumbs {
+      display: none;
+      margin-top: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    #phn-gallery-thumbs.visible { display: flex; }
+    .phn-thumb {
+      width: 72px; height: 72px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #f5f5f5;
+      flex-shrink: 0;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .phn-thumb img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .phn-thumb:hover  { border-color: #70B62F; }
+    .phn-thumb.active { border-color: #70B62F; box-shadow: 0 0 0 3px rgba(112,182,47,.2); }
+
+    /* ── Navbar PHN Ficha ───────────────────────────────────── */
+    #phn-nav { font-family: 'Lato', -apple-system, sans-serif; }
+
+    /* ── Reducir espacio en blanco inicial ─────────────────── */
+    .product-section.spaced-section { margin-top: 2rem !important; }
+    .product { padding-top: 2rem !important; }
+
+    /* ── Imagen sticky + video sin sobreposición ─────────── */
+    .product-section { position: relative; z-index: 0; }
+    .fixed-video-campaign--section { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR — igual que productos.html -->
+<header id="phn-nav" style="position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e5e5;box-shadow:0 2px 8px rgba(0,0,0,.06);font-family:'Lato',sans-serif;">
+  <div style="max-width:1300px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:16px;">
+
+    <!-- Logo -->
+    <a href="../index.html" style="flex-shrink:0;display:flex;align-items:center;">
+      <img src="../public/images/logos/Logo PHN.webp" alt="PHN — Proher Natura"
+           style="height:44px;width:auto;object-fit:contain;"
+           onerror="this.src='../public/images/logos/Logo PHN.png';" />
+    </a>
+
+    <!-- Links desktop -->
+    <nav style="flex:1;display:flex;align-items:center;gap:2px;margin-left:12px;">
+      <a href="../index.html"
+         style="padding:8px 13px;font-size:1.05em;font-weight:600;color:#1a1a1a;text-decoration:none;border-radius:6px;white-space:nowrap;transition:background .2s;"
+         onmouseover="this.style.background='#f2f9ed'" onmouseout="this.style.background='transparent'">Inicio</a>
+      <a href="../productos.html"
+         style="padding:8px 13px;font-size:1.05em;font-weight:600;color:#70B62F;text-decoration:none;border-radius:6px;white-space:nowrap;background:#f2f9ed;"
+         onmouseover="this.style.background='#e3f5d8'" onmouseout="this.style.background='#f2f9ed'">Productos</a>
+    </nav>
+
+    <!-- Búsqueda + Carrito + Tema -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+
+      <!-- Barra de búsqueda (redirige a productos.html) -->
+      <form role="search" style="display:flex;align-items:center;border:1.5px solid #ddd;border-radius:999px;padding:5px 14px;gap:8px;background:#f7f7f7;transition:border-color .2s,box-shadow .2s;"
+            onfocusin="this.style.borderColor='#70B62F';this.style.boxShadow='0 0 0 3px rgba(112,182,47,.12)'"
+            onfocusout="this.style.borderColor='#ddd';this.style.boxShadow='none'"
+            onsubmit="event.preventDefault();var q=this.querySelector('input').value.trim();if(q)window.location='../productos.html?q='+encodeURIComponent(q);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="search" placeholder="Buscar productos…" aria-label="Buscar"
+               style="border:none;background:transparent;outline:none;font-size:.87rem;color:#1a1a1a;width:140px;font-family:'Lato',sans-serif;" />
+      </form>
+
+
+      <!-- Icono carrito -->
+      <a href="../carrito.html" aria-label="Ver carrito" id="phn-cart-link"
+         style="position:relative;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;color:#1a1a1a;text-decoration:none;transition:background .2s;"
+         onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 576 512" fill="currentColor">
+          <path d="M24 0C10.7 0 0 10.7 0 24S10.7 48 24 48l45.5 0c3.8 0 7.1 2.7 7.9 6.5l51.6 271c6.5 34 36.2 58.5 70.7 58.5L488 384c13.3 0 24-10.7 24-24s-10.7-24-24-24l-288.3 0c-11.5 0-21.4-8.2-23.6-19.5L170.7 288l288.5 0c32.6 0 61.1-21.8 69.5-53.3l41-152.3C576.6 57 557.4 32 531.1 32l-411 0C111 12.8 91.6 0 69.5 0L24 0zM131.1 80l389.6 0L482.4 222.2c-2.8 10.5-12.3 17.8-23.2 17.8l-297.6 0L131.1 80zM176 512a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm336-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/>
+        </svg>
+        <span id="phn-cart-badge" class="hidden" style="position:absolute;top:-5px;right:-5px;background:#70B62F;color:#fff;font-size:.6rem;font-weight:700;border-radius:999px;min-width:16px;height:16px;padding:0 4px;display:flex;align-items:center;justify-content:center;pointer-events:none;">0</span>
+      </a>
+
+    </div>
+  </div>
+</header>
+
+<!-- ── Banners del producto (al inicio) ── -->
+<section id="phn-product-banners" style="display:none;padding:0;margin:0;">
+  <style>
+    #phn-product-banners img {
+      width: 100%; height: auto; display: block;
+    }
+  </style>
+</section>
+
+<main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+  <section class="shopify-section product-section spaced-section">
+    <link href="../compra/css/section-main-product.css" rel="stylesheet" type="text/css" media="all">
+    <link href="../compra/css/component-price.css" rel="stylesheet" type="text/css" media="all">
+    <link href="../compra/css/component-rte.css" rel="stylesheet" type="text/css" media="all">
+    <script src="../compra/js/product-form.js" defer="defer"></script>
+
+    <section class="page-width">
+      <div class="product product--medium product--thumbnail_slider grid grid--1-col grid--2-col-tablet">
+
+        <!-- Imagen del producto -->
+        <div class="grid__item product__media-wrapper">
+          <div class="product__media media" style="aspect-ratio:1/1;overflow:hidden;border-radius:8px;background:transparent;">
+            <img id="productImg" src="" alt=""
+              style="width:100%;height:100%;object-fit:contain;display:block;" />
+          </div>
+          <!-- Miniaturas de galería (se muestra solo si hay imágenes en gallery-data.js) -->
+          <div id="phn-gallery-thumbs"></div>
+        </div>
+
+        <!-- Info del producto -->
+        <div class="product__info-wrapper grid__item">
+          <div class="product__info-container product__info-container--sticky">
+
+            <!-- Tipo badge -->
+            <span id="prod-tipo" class="phn-tipo-badge"></span>
+
+            <!-- Título -->
+            <h1 class="product__title" id="productTitle"></h1>
+            <p id="productPrice" style="font-size:1.6em;font-weight:900;color:#70B62F;margin:8px 0 4px;display:none;"></p>
+
+            <!-- Tags de beneficio -->
+            <div id="prod-tags" class="phn-tags"></div>
+
+            <!-- PROPIEDADES (texto que vende — siempre visible) -->
+            <p id="prod-propiedades" style="font-size:1.4rem;line-height:1.75;color:#333;margin:8px 0 16px;font-family:-apple-system,sans-serif;"></p>
+
+            <!-- BENEFICIOS (lista visual — siempre visible) -->
+            <ul id="prod-beneficios-list" style="list-style:none;padding:0;margin:0 0 16px;display:flex;flex-direction:column;gap:8px;"></ul>
+
+            <!-- Presentación y Dosis destacada -->
+            <div class="phn-pres-dosis" style="margin-top:14px;">
+              <div class="phn-mini-card">
+                <span>Presentación</span>
+                <p id="prod-pres"></p>
+              </div>
+              <div class="phn-mini-card">
+                <span>Dosis</span>
+                <p id="prod-dosis"></p>
+              </div>
+            </div>
+
+            <!-- Botón Ver ficha técnica -->
+            <button class="phn-ver-mas-btn" id="ver-mas-btn" onclick="toggleDetalles()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" id="ver-mas-icon"><polyline points="6 9 12 15 18 9"/></svg>
+              Ver ficha técnica completa
+            </button>
+
+            <!-- DETALLES EXPANDIBLES (ficha técnica) -->
+            <div id="phn-detalles">
+              <div class="phn-detalle-bloque">
+                <h3>Descripción</h3>
+                <div class="product__description rte" id="productDesc" style="white-space:pre-line;"></div>
+              </div>
+              <div class="phn-detalle-bloque">
+                <h3>Ingredientes</h3>
+                <p id="prod-ing"></p>
+              </div>
+              <div class="phn-detalle-bloque">
+                <h3>Recomendaciones de uso</h3>
+                <p id="prod-uso"></p>
+              </div>
+              <div class="phn-detalle-bloque">
+                <h3>Contraindicaciones</h3>
+                <p id="prod-contra"></p>
+              </div>
+              <div class="phn-detalle-bloque">
+                <h3>Almacenamiento &amp; Vida útil</h3>
+                <p id="prod-alm"></p>
+                <p style="margin-top:6px;color:#666;">Vida útil: 24 meses.</p>
+              </div>
+              <div class="phn-warn-box">
+                <strong>⚠️ Leyendas de protección</strong>
+                No se deje al alcance de los niños. El uso pediátrico no está indicado.
+                No ingiera más de la dosis recomendada ni por periodos prolongados.
+                Consulte a su asesor naturista.
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+              <button class="phn-cart-btn" id="btn-cart" onclick="agregarAlCarrito()">
+                🛒 Agregar al carrito
+              </button>
+              <a id="buyBtn" href="#" target="_blank" rel="noopener">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Consultar por WhatsApp
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<section class="fixed-video-campaign--section">
+
+<div class="rich-text__blocks fixed-video-campaign__intro">
+  <div class="banner__text caption-with-letter-spacing--large"><span>PHN PROHER NATURA</span></div>
+  <h2 class="h0" id="fsc-heading">Suplemento natural</h2>
+</div>
+
+<div class="fixed-video-campaign" id="fixed_scroll_videos">
+  <ul class="fixed-video__nav" aria-hidden="true">
+    <li class="active">&nbsp;</li>
+    <li class="">&nbsp;</li>
+    <li>&nbsp;</li>
+  </ul>
+
+  <ul class="fixed-video__cards" aria-hidden="true">
+    <li class="fixed-video__card fixed-video__card-0">&nbsp;</li>
+    <li class="fixed-video__card fixed-video__card-1">&nbsp;</li>
+    <li class="fixed-video__card fixed-video__card-2">&nbsp;</li>
+  </ul>
+
+  <div class="fixed-video__card-players">
+    <video id="vid1" loop="" muted="" autoplay="" playsinline="" autobuffer="autobuffer" preload="preload" class="active">
+      <source type="video/mp4" src="../animacion/capsula 1.mp4">
+    </video>
+    <video id="vid2" muted="" autobuffer="autobuffer" preload="preload" class="">
+      <source type="video/mp4" src="../animacion/capsula 2.mp4">
+    </video>
+    <video id="vid3" muted="" autobuffer="autobuffer" preload="preload">
+      <source type="video/mp4" src="../animacion/capsula 3.mp4">
+    </video>
+  </div>
+
+  <div class="slider-fading slider-fading__video slider-fading__video--mobile slider-fading__campaign-pois">
+    <ul class="slider-fading__slides">
+      <li class="active">
+        <video loop="" playsinline="" muted="" autoplay="" autobuffer="autobuffer" preload="preload" class="">
+          <source type="video/mp4" src="../animacion/capsula 1.mp4">
+        </video>
+        <div class="slider-fading__video--mobile-content"><div class="scene1_poi3 poi3"><p class="banner__text caption-with-letter-spacing--large">Protección poderosa</p></div></div>
+      </li>
+      <li>
+        <video loop="" playsinline="" muted="" autoplay="" autobuffer="autobuffer" preload="preload">
+          <source type="video/mp4" src="../animacion/capsula 2.mp4">
+        </video>
+        <div class="slider-fading__video--mobile-content"><div class="scene2_poi1 poi1"><p class="banner__text caption-with-letter-spacing--large">Protección poderosa</p><p class="rich-text__text rte caption">Los liposomas poseen una estructura única que les permite encapsular vitaminas, minerales y hierbas en una barrera protectora, lo que ayuda a que los nutrientes sobrevivan a la digestión y lleguen a las células para ser absorbidos.*</p></div></div>
+      </li>
+      <li>
+        <video loop="" playsinline="" muted="" autoplay="" autobuffer="autobuffer" preload="preload">
+          <source type="video/mp4" src="../animacion/capsula 3.mp4">
+        </video>
+        <div class="slider-fading__video--mobile-content"><div class="scene3_poi2 poi2"><p class="banner__text caption-with-letter-spacing--large">Digestión suave</p><p class="rich-text__text rte caption">La barrera protectora de los liposomas también ayuda a que los nutrientes actúen suavemente sobre el sistema digestivo.</p></div><div class="scene3_poi4 poi4"><p class="banner__text caption-with-letter-spacing--large">Tecnología revolucionaria</p><p class="rich-text__text rte caption">En lugar de administrar los liposomas en el formato líquido tradicional, el método avanzado y patentado los deshidrata hasta convertirlos en polvo, que puede utilizarse con cápsulas prácticas.</p></div></div>
+      </li>
+    </ul>
+    <div class="slideshow__controls slider-buttons no-js-hidden">
+      <button type="button" class="slider-fading-button slider-button--prev" name="previous">
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+      </button>
+      <button type="button" class="slider-fading-button slider-button--next" name="next">
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <ul class="fixed-video__card-pointers" aria-hidden="true">
+    <li class="fixed-video__card-pointers--scene1 active"><div class="pointer">&nbsp;</div></li>
+    <li class="fixed-video__card-pointers--scene2"><div class="pointer">&nbsp;</div></li>
+    <li class="fixed-video__card-pointers--scene3"><div class="pointer">&nbsp;</div></li>
+  </ul>
+
+  <ul class="fixed-video__card-pois" id="fsc-pois">
+    <li class="fixed-video__card-pois--scene1 active">
+      <div class="scene1_poi3 poi3">
+        <p class="banner__text caption-with-letter-spacing--large" id="fsc-poi1-title"></p>
+      </div>
+    </li>
+    <li class="fixed-video__card-pois--scene2">
+      <div class="scene2_poi1 poi1">
+        <p class="banner__text caption-with-letter-spacing--large" id="fsc-poi2-title"></p>
+        <p class="rich-text__text rte caption" id="fsc-poi2-desc"></p>
+      </div>
+    </li>
+    <li class="fixed-video__card-pois--scene3">
+      <div class="scene3_poi2 poi2">
+        <p class="banner__text caption-with-letter-spacing--large" id="fsc-poi3-title"></p>
+        <p class="rich-text__text rte caption" id="fsc-poi3-desc"></p>
+      </div>
+    </li>
+  </ul>
+</div>
+
+</section>
+
+<!-- ── Sección 4 columnas PHN (editar en compra/features-content.js) ── -->
+<section class="shopify-section spaced-section spaced-section--full-width" style="margin-top:0;">
+  <div class="multicolumn background-primary no-heading" style="padding-top:24px;padding-bottom:24px;">
+    <div class="page-width">
+      <ul class="multicolumn-list grid grid--1-col grid--2-col-tablet grid--4-col-desktop" id="phn-features-list" role="list"></ul>
+    </div>
+  </div>
+</section>
+
+<script src="../compra/features-content.js"></script>
+<script>
+(function(){
+  if(!window.PHN_FEATURES) return;
+  var list = document.getElementById('phn-features-list');
+  if(!list) return;
+  var base = '../';
+  list.innerHTML = '';
+  PHN_FEATURES.items.forEach(function(item){
+    var li = document.createElement('li');
+    li.className = 'multicolumn-list__item grid__item';
+    li.innerHTML =
+      '<div class="multicolumn-card">'
+      + '<div class="multicolumn-card__image-wrapper multicolumn-card__image-wrapper--full-width multicolumn-card-spacing">'
+      + '<div class="media media--transparent media--adapt" style="padding-bottom:91.01%;">'
+      + '<img src="' + base + item.img + '" alt="" loading="lazy">'
+      + '</div></div>'
+      + '<div class="multicolumn-card__info">'
+      + '<h3>' + item.title + '</h3>'
+      + '<div class="rte"><p>' + item.text + '</p></div>'
+      + '</div></div>';
+    list.appendChild(li);
+  });
+})();
+</script>
+
+<script src="../src/features/productos/data.js"></script>
+<script>
+var _currentId = new URLSearchParams(window.location.search).get('id');
+var WA_NUMBER = '525536194099';
+
+document.addEventListener('DOMContentLoaded', function(){
+  var p = PHN_CATALOG[_currentId];
+  if (!p) {
+    document.getElementById('productTitle').textContent = 'Producto no encontrado';
+    return;
+  }
+
+  document.title = p.nombre + ' — Ale-Natura';
+
+  // Ocultar videos de Nanotecnología en productos cosméticos
+  var cosmeticos = ['VR-4 GEL','DB-6 CREMA','COLAGENO 80/20','COLAGENO 50/50','MASCARILLA','F.VIT-GEL'];
+  if (cosmeticos.indexOf(_currentId) !== -1) {
+    var vidSec = document.querySelector('.fixed-video-campaign--section');
+    if (vidSec) vidSec.style.display = 'none';
+  }
+  if (p.precio) {
+    var priceEl = document.getElementById('productPrice');
+    priceEl.textContent = p.precio;
+    priceEl.style.display = 'block';
+  }
+
+  // Mostrar banners del producto
+  if (p.banners && p.banners.length > 0) {
+    var bannerSec = document.getElementById('phn-product-banners');
+    var html = '';
+    p.banners.forEach(function(src) {
+      html += '<img src="' + src + '" alt="' + p.nombre + '" loading="lazy" />';
+    });
+    bannerSec.innerHTML += html;
+    // Cosméticos: mover banners debajo del producto
+    var cosmeticosIds = ['VR-4 GEL','DB-6 CREMA','COLAGENO 80/20','COLAGENO 50/50','MASCARILLA','F.VIT-GEL'];
+    if (cosmeticosIds.indexOf(_currentId) !== -1) {
+      var mainContent = document.getElementById('MainContent');
+      if (mainContent) mainContent.parentNode.insertBefore(bannerSec, mainContent.nextSibling);
+    }
+    bannerSec.style.display = 'block';
+  }
+  document.getElementById('productImg').src = p.img;
+  document.getElementById('productImg').alt = p.nombre;
+
+  // ── Galería de miniaturas ─────────────────────────────────
+  var gallery = (typeof PHN_GALLERY !== 'undefined' && PHN_GALLERY[_currentId]) || [];
+  // Agregar la imagen de portada como primera de la galería
+  var fullGallery = [p.img].concat(gallery);
+  var thumbsEl = document.getElementById('phn-gallery-thumbs');
+  if (fullGallery.length > 1) {
+    thumbsEl.classList.add('visible');
+  }
+  fullGallery.forEach(function(imgPath, idx) {
+    var div = document.createElement('div');
+    div.className = 'phn-thumb' + (idx === 0 ? ' active' : '');
+    var img = document.createElement('img');
+    img.src = imgPath;
+    img.alt = p.nombre + ' ' + (idx + 1);
+    img.loading = 'lazy';
+    div.appendChild(img);
+    div.addEventListener('click', function() {
+      document.getElementById('productImg').src = imgPath;
+      thumbsEl.querySelectorAll('.phn-thumb').forEach(function(t){ t.classList.remove('active'); });
+      div.classList.add('active');
+    });
+    thumbsEl.appendChild(div);
+  });
+  // ── Poblar la sección fixed-video-campaign con datos del producto ──
+  var fscH = document.getElementById('fsc-heading');
+  if (fscH) fscH.textContent = p.nombre;
+  var poi1t = document.getElementById('fsc-poi1-title');
+  if (poi1t) poi1t.textContent = p.tipo;
+  var poi2t = document.getElementById('fsc-poi2-title');
+  var poi2d = document.getElementById('fsc-poi2-desc');
+  if (poi2t) poi2t.textContent = p.beneficios[0] || '';
+  if (poi2d) poi2d.textContent = p.descripcion.substring(0, 120) + '…';
+  var poi3t = document.getElementById('fsc-poi3-title');
+  var poi3d = document.getElementById('fsc-poi3-desc');
+  if (poi3t) poi3t.textContent = p.beneficios[1] || p.beneficios[0] || '';
+  if (poi3d) poi3d.textContent = p.uso ? p.uso.substring(0, 120) + '…' : '';
+  document.getElementById('prod-tipo').textContent = p.tipo;
+  document.getElementById('productTitle').textContent = p.nombre;
+
+  // Propiedades (texto que vende)
+  var propEl = document.getElementById('prod-propiedades');
+  if (propEl && p.propiedades) propEl.textContent = p.propiedades;
+
+  // Beneficios (lista visual)
+  var benListEl = document.getElementById('prod-beneficios-list');
+  if (benListEl && p.beneficiosList && p.beneficiosList.length) {
+    benListEl.innerHTML = '';
+    p.beneficiosList.forEach(function(b){
+      var li = document.createElement('li');
+      li.style.cssText = 'display:flex;align-items:center;gap:10px;font-size:1.3rem;color:#333;font-family:-apple-system,sans-serif;';
+      li.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#edf7e4;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#70B62F" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>' + b;
+      benListEl.appendChild(li);
+    });
+  }
+
+  document.getElementById('productDesc').textContent = p.descripcion;
+  document.getElementById('prod-pres').textContent = p.presentacion;
+  document.getElementById('prod-dosis').textContent = p.dosis;
+  document.getElementById('prod-ing').textContent = p.ingredientes;
+  document.getElementById('prod-uso').textContent = p.uso;
+  document.getElementById('prod-contra').textContent = p.contraindicaciones;
+  document.getElementById('prod-alm').textContent = p.almacenamiento;
+
+  // Tags de beneficio
+  var tagsEl = document.getElementById('prod-tags');
+  p.beneficios.forEach(function(b){
+    var span = document.createElement('span');
+    span.className = 'phn-tag';
+    span.textContent = b;
+    tagsEl.appendChild(span);
+  });
+
+  // Botón WhatsApp
+  var msg = 'Hola, me gustaría obtener más información sobre el producto *' + p.nombre + '* de Ale-Natura. ¿Podrían ayudarme?';
+  document.getElementById('buyBtn').href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg);
+});
+
+function toggleDetalles() {
+  var det = document.getElementById('phn-detalles');
+  var btn = document.getElementById('ver-mas-btn');
+  var icon = document.getElementById('ver-mas-icon');
+  var visible = det.classList.toggle('visible');
+  btn.innerHTML = visible
+    ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg> Ocultar ficha'
+    : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg> Ver ficha completa';
+}
+
+function agregarAlCarrito() {
+  var p = PHN_CATALOG[_currentId];
+  if (!p) return;
+  try {
+    var cart = JSON.parse(localStorage.getItem('phn-cart') || '[]');
+    var existing = cart.find(function(i){ return i.name === _currentId; });
+    if (existing) { existing.qty += 1; }
+    else { cart.push({ name: _currentId, qty: 1, img: 'productos/' + p.img, price: p.precio || '' }); }
+    localStorage.setItem('phn-cart', JSON.stringify(cart));
+    actualizarBadge();
+    var btn = document.getElementById('btn-cart');
+    btn.textContent = '✓ Agregado al carrito';
+    btn.classList.add('added');
+    setTimeout(function(){ btn.innerHTML = '🛒 Agregar al carrito'; btn.classList.remove('added'); }, 1500);
+  } catch(e) {}
+}
+
+// ── Carrito badge ────────────────────────────────────────────
+function actualizarBadge() {
+  try {
+    var cart = JSON.parse(localStorage.getItem('phn-cart') || '[]');
+    var total = cart.reduce(function(s, i){ return s + i.qty; }, 0);
+    var badge = document.getElementById('phn-cart-badge');
+    if (!badge) return;
+    badge.textContent = total;
+    if (total > 0) badge.classList.remove('hidden');
+    else badge.classList.add('hidden');
+  } catch(e) {}
+}
+document.addEventListener('DOMContentLoaded', actualizarBadge);
+
+// ── Modo oscuro toggle ───────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  var sunIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  var moonIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var themeBtn = document.getElementById('phn-theme-btn');
+  var themeIcon = document.getElementById('phn-theme-icon');
+  function applyTheme(dark) {
+    if (dark) {
+      document.documentElement.classList.add('dark');
+      if (themeIcon) themeIcon.outerHTML = sunIcon.replace('id="phn-theme-icon"','').replace('<svg','<svg id="phn-theme-icon"');
+    } else {
+      document.documentElement.classList.remove('dark');
+      if (themeIcon) themeIcon.outerHTML = moonIcon.replace('<svg','<svg id="phn-theme-icon"');
+    }
+  }
+  // Set initial icon
+  applyTheme(document.documentElement.classList.contains('dark'));
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function(){
+      var isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('phn-theme', isDark ? 'light' : 'dark');
+      applyTheme(!isDark);
+    });
+  }
+});
+</script>
+
+<!-- jQuery + script EXACTO de compra.html -->
+<script src="../compra/js/jquery-3.5.1.min.js"></script>
+<script>
+  $(".fixed-video__cards li").addClass(function(index){
+    return "fixed-video__card-" + index;
+  });
+
+  setTimeout(function(){
+    var videos = document.getElementById("fixed_scroll_videos");
+
+    $(window).scroll(function(){
+      if ($(".fixed-video-campaign").length) {
+        var triggerTopVideo = $(".fixed-video-campaign").offset().top;
+        if ($(window).scrollTop() >= $(".fixed-video__cards").offset().top + $(".fixed-video__cards").outerHeight() - window.innerHeight) {
+          $(".fixed-video__card-players").removeClass("fixed").addClass("fixed-bottom");
+          $(".fixed-video__card-pointers").removeClass("fixed").addClass("fixed-bottom");
+          $(".fixed-video__card-pois").removeClass("fixed").addClass("fixed-bottom");
+          $(".fixed-video__nav").removeClass("fixed").addClass("fixed-bottom");
+        } else if (window.scrollY > triggerTopVideo) {
+          $(".fixed-video__card-players").removeClass("fixed-bottom").addClass("fixed");
+          $(".fixed-video__card-pointers").removeClass("fixed-bottom").addClass("fixed");
+          $(".fixed-video__card-pois").removeClass("fixed-bottom").addClass("fixed");
+          $(".fixed-video__nav").removeClass("fixed-bottom").addClass("fixed");
+        } else {
+          $(".fixed-video__card-players").removeClass("fixed").removeClass("fixed-bottom");
+          $(".fixed-video__card-pointers").removeClass("fixed").removeClass("fixed-bottom");
+          $(".fixed-video__card-pois").removeClass("fixed").removeClass("fixed-bottom");
+          $(".fixed-video__nav").removeClass("fixed").removeClass("fixed-bottom");
+        }
+
+        if ($(".fixed-video__card-0").length) {
+          var cardVideo1 = $(".fixed-video__card-0").offset().top;
+          var cardVideoPlayer1 = document.getElementById("vid1");
+          if (window.scrollY > cardVideo1) {
+            $("video").removeClass("active");
+            $(cardVideoPlayer1).addClass("active");
+            $(".fixed-video__nav li").removeClass("active").eq(0).addClass("active");
+            $(".fixed-video__card-pois li").removeClass("active").eq(0).addClass("active");
+            $(".fixed-video__card-pointers li").removeClass("active").eq(0).addClass("active");
+          }
+        }
+        if ($(".fixed-video__card-1").length) {
+          var cardVideo2 = $(".fixed-video__card-1").offset().top;
+          var cardVideoPlayer2 = document.getElementById("vid2");
+          if (window.scrollY > cardVideo2) {
+            $("video").removeClass("active");
+            $(cardVideoPlayer2).addClass("active").get(0).play();
+            $(".fixed-video__nav li").removeClass("active").eq(1).addClass("active");
+            $(".fixed-video__card-pois li").removeClass("active").eq(1).addClass("active");
+            $(".fixed-video__card-pointers li").removeClass("active").eq(1).addClass("active");
+          }
+        }
+        if ($(".fixed-video__card-2").length) {
+          var cardVideo3 = $(".fixed-video__card-2").offset().top;
+          var cardVideoPlayer3 = document.getElementById("vid3");
+          if (window.scrollY > cardVideo3) {
+            $("video").removeClass("active");
+            $(cardVideoPlayer3).addClass("active").get(0).play();
+            $(".fixed-video__nav li").removeClass("active").eq(2).addClass("active");
+            $(".fixed-video__card-pois li").removeClass("active").eq(2).addClass("active");
+            $(".fixed-video__card-pointers li").removeClass("active").eq(2).addClass("active");
+          }
+        }
+      }
+    });
+  }, 2000);
+
+  $(".slider-fading .slideshow__controls .slider-button--next").click(function(){
+    setTimeout(function(){
+      if ($(".slider-fading li").hasClass("active")) {
+        $(".slider-fading li.active video").get(0).play();
+      } else {
+        $(".slider-fading li.active video").get(0).pause();
+      }
+    }, 250);
+  });
+</script>
+<script src="../compra/js/footer.js" data-root="../"></script>
+<script src="../meredith-widget.js" data-root="../" defer></script>
+</body>
+</html>

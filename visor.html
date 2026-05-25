@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Visor Ale-Natura</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #2c2c2c;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* ══ TOPBAR ══════════════════════════════════════════════════════════════ */
+    #topbar {
+      height: 48px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #3a3a3a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    #topbar-logo  { height: 26px; width: auto; margin-right: 6px; }
+    #topbar-title { font-size: 0.85em; font-weight: 600; color: #bbb; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tb-sep { width: 1px; height: 22px; background: #3a3a3a; margin: 0 4px; flex-shrink: 0; }
+    .tb-btn {
+      background: #2a2a2a; border: 1px solid #3a3a3a; color: #aaa;
+      width: 28px; height: 28px; border-radius: 5px; cursor: pointer;
+      font-size: 0.95em; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .tb-btn:hover { background: #3a3a3a; color: #fff; }
+    .tb-btn:disabled { opacity: 0.3; cursor: default; }
+    #page-info   { font-size: 0.8em; color: #777; white-space: nowrap; min-width: 60px; text-align: center; }
+    #zoom-display { width: 50px; height: 28px; background: #2a2a2a; border: 1px solid #3a3a3a; color: #fff; border-radius: 5px; text-align: center; font-size: 0.8em; }
+    #btn-back     { background: #70B62F; border: none; color: #fff; padding: 5px 12px; border-radius: 5px; font-size: 0.8em; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
+    #btn-back:hover { background: #5a9424; }
+    #btn-download { background: #2a2a2a; border: 1px solid #3a3a3a; color: #aaa; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
+    #btn-download:hover { background: #3a3a3a; color: #fff; }
+
+    /* ══ LAYOUT ══════════════════════════════════════════════════════════════ */
+    #main { display: flex; min-height: calc(100vh - 48px); }
+
+    /* ══ PANEL IZQUIERDO — miniaturas ════════════════════════════════════════ */
+    #panel-thumbs {
+      width: 170px; min-width: 170px;
+      background: #222;
+      border-right: 1px solid #333;
+      overflow-y: auto; overflow-x: hidden;
+      padding: 14px 10px;
+      display: flex; flex-direction: column; gap: 12px;
+      position: sticky; top: 48px; height: calc(100vh - 48px); align-self: flex-start;
+    }
+    #panel-thumbs::-webkit-scrollbar { width: 4px; }
+    #panel-thumbs::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+    .thumb-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+    .thumb-card {
+      background: #fff; border-radius: 4px; overflow: hidden; width: 100%;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .thumb-wrap:hover .thumb-card { border-color: #70B62F88; }
+    .thumb-wrap.active .thumb-card { border-color: #70B62F; box-shadow: 0 0 0 3px rgba(112,182,47,0.25); }
+    .thumb-card canvas { display: block; width: 100%; height: auto; }
+    .thumb-num { font-size: 0.68em; color: #888; text-align: center; }
+    .thumb-wrap.active .thumb-num { color: #70B62F; font-weight: 600; }
+
+    /* ══ ÁREA CENTRAL — scroll continuo ══════════════════════════════════════ */
+    #viewer-area {
+      flex: 1;
+      background: #3c3c3c;
+      padding: 20px 0 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    #viewer-area::-webkit-scrollbar { width: 6px; }
+    #viewer-area::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+    /* Cada página es un wrapper con su canvas de dibujo encima */
+    .page-container {
+      position: relative;
+      display: block;
+      flex-shrink: 0;
+      /* sombra solo en los lados — sin separación entre páginas */
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5);
+    }
+    .page-container:first-child {
+      border-radius: 3px 3px 0 0;
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5), 0 -6px 16px rgba(0,0,0,0.5);
+    }
+    .page-container:last-child  {
+      border-radius: 0 0 3px 3px;
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5), 0 6px 16px rgba(0,0,0,0.5);
+    }
+    .page-container canvas.main-c { display: block; background: #fff; }
+    .page-container canvas.draw-c {
+      position: absolute; top: 0; left: 0;
+      cursor: crosshair; display: none;
+    }
+
+    /* (overlay eliminado) */
+
+    
+
+    /* Hotspot invisible sobre el bote */
+    .phn-hotspot {
+      position: absolute; z-index: 6;
+      cursor: pointer;
+      border-radius: 30% 30% 18% 18%;
+    }
+    .phn-hotspot.bottle-tall { border-radius: 20% 20% 12% 12%; }
+    .phn-hotspot.bottle-jar { border-radius: 15% 15% 10% 10%; }
+
+    /* Popup de producto al hacer clic */
+    #phn-product-popup {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      align-items: center; justify-content: center;
+      background: transparent;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    #phn-product-popup.visible { display: flex; }
+    .phn-popup-card {
+      background: transparent;
+      padding: 0;
+      display: flex; flex-direction: column; align-items: center;
+      animation: phn-popup-in 0.3s cubic-bezier(.34,1.4,.64,1);
+    }
+    @keyframes phn-popup-in {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .phn-popup-card img {
+      width: 580px; height: 580px;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.3));
+      margin-bottom: 24px;
+    }
+    .phn-popup-card .popup-name { display: none; }
+    .phn-popup-card .popup-cta {
+      display: inline-block; background: #70B62F; color: #fff;
+      padding: 13px 34px; border-radius: 999px;
+      font-size: 0.95em; font-weight: 700;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 6px 20px rgba(112,182,47,0.4);
+    }
+    .phn-popup-card .popup-cta:hover { background: #5a9424; transform: translateY(-2px); }
+    @media (max-width: 768px) {
+      .phn-popup-card img { width: 220px; height: 220px; }
+    }
+
+    /* Placeholder mientras la página no ha renderizado aún */
+    .page-ph {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+      background-size: 400% 400%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 100% 50%; }
+      100% { background-position:   0% 50%; }
+    }
+
+    #loading-msg { color: #999; font-size: 0.95em; margin-top: 80px; text-align: center; line-height: 2; }
+    #loading-msg .spin { display: block; font-size: 2.2em; animation: spin 1s linear infinite; margin-bottom: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══ PANEL DERECHO — herramientas ════════════════════════════════════════ */
+    #panel-tools {
+      width: 54px; min-width: 54px;
+      background: #1a1a1a;
+      border-left: 1px solid #333;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 0; gap: 4px; overflow-y: auto;
+      position: sticky; top: 48px; height: calc(100vh - 48px); align-self: flex-start;
+    }
+    #panel-tools::-webkit-scrollbar { width: 0; }
+    .tool-btn {
+      width: 36px; height: 36px; border-radius: 7px;
+      background: transparent; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1em; color: #777;
+      transition: background 0.15s, color 0.15s; position: relative;
+    }
+    .tool-btn:hover { background: #2a2a2a; color: #ddd; }
+    .tool-btn.active { background: rgba(112,182,47,0.15); color: #70B62F; }
+    .tool-btn::after {
+      content: attr(data-tip);
+      position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+      background: #111; color: #ddd; font-size: 0.7em; white-space: nowrap;
+      padding: 3px 7px; border-radius: 4px; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s; z-index: 200;
+    }
+    .tool-btn:hover::after { opacity: 1; }
+    .tool-sep { width: 28px; height: 1px; background: #2a2a2a; margin: 4px 0; }
+    .color-label { font-size: 0.6em; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin: 6px 0 4px; text-align: center; width: 100%; }
+    .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 0 8px; width: 100%; }
+    .color-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; justify-self: center; }
+    .color-dot:hover { transform: scale(1.2); }
+    .color-dot.active { border-color: #fff; }
+
+    /* ══ Responsive — móvil ═════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #panel-thumbs { display: none; }
+      #panel-tools  { display: none; }
+
+      /* Topbar simplificado: solo back + título + página */
+      #topbar { height: 52px; padding: 0 10px; gap: 6px; }
+      #topbar-logo  { display: none; }
+      .tb-sep       { display: none; }
+      #zoom-display { display: none; }
+      #btn-zoom-in  { display: none; }
+      #btn-zoom-out { display: none; }
+      #btn-zoom-fit { display: none; }
+      #btn-download { display: none; }
+      #btn-prev     { display: none; }
+      #btn-next     { display: none; }
+
+      #topbar-title { font-size: 0.9em; }
+      #page-info    { font-size: 0.75em; min-width: 44px; }
+      #btn-back     { padding: 6px 14px; font-size: 0.82em; }
+
+      /* Páginas a ancho completo, sin espacios */
+      #viewer-area  { padding: 0; align-items: stretch; }
+      .page-container {
+        width: 100% !important;
+        height: auto !important;   /* la altura la dicta el canvas, no el inline style */
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .page-container canvas.main-c {
+        width: 100% !important;
+        height: auto !important;
+        display: block;
+      }
+      .page-container canvas.draw-c {
+        width: 100% !important;
+        height: auto !important;
+      }
+      /* Placeholder mobile: usar padding-bottom para el aspect ratio */
+      .page-container .page-ph {
+        position: relative !important;
+        inset: unset !important;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <img id="topbar-logo" src="public/images/logos/Logo PHN.png" alt="PHN" />
+  <span id="topbar-title">Cargando…</span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btn-prev">&#8249;</button>
+  <span id="page-info">— / —</span>
+  <button class="tb-btn" id="btn-next">&#8250;</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="btn-zoom-out">&#8722;</button>
+  <input type="text" id="zoom-display" value="100%" readonly />
+  <button class="tb-btn" id="btn-zoom-in">&#43;</button>
+  <button class="tb-btn" id="btn-zoom-fit" style="font-size:0.7em;">Ajustar</button>
+  <div class="tb-sep"></div>
+  <button id="btn-download">&#11015; Descargar</button>
+  <button id="btn-back">&#8592; Volver</button>
+</div>
+
+<div id="main">
+  <div id="panel-thumbs"></div>
+
+  <div id="viewer-area">
+    <div id="loading-msg"><span class="spin">&#8635;</span>Cargando PDF…</div>
+  </div>
+
+  <div id="panel-tools">
+    <button class="tool-btn active" id="tool-cursor"    data-tip="Selección">&#8613;</button>
+    <button class="tool-btn"        id="tool-draw"      data-tip="Dibujar">&#9998;</button>
+    <button class="tool-btn"        id="tool-highlight" data-tip="Resaltar">&#9871;</button>
+    <button class="tool-btn"        id="tool-text"      data-tip="Texto" style="font-weight:700;font-size:1.1em;">T</button>
+    <button class="tool-btn"        id="tool-eraser"    data-tip="Borrar">&#9633;</button>
+    <div class="tool-sep"></div>
+    <div class="color-label">Color</div>
+    <div class="color-grid">
+      <div class="color-dot active" style="background:#ffeb3b" data-color="#ffeb3b"></div>
+      <div class="color-dot"        style="background:#4caf50" data-color="#4caf50"></div>
+      <div class="color-dot"        style="background:#2196f3" data-color="#2196f3"></div>
+      <div class="color-dot"        style="background:#f44336" data-color="#f44336"></div>
+      <div class="color-dot"        style="background:#ff9800" data-color="#ff9800"></div>
+      <div class="color-dot"        style="background:#9c27b0" data-color="#9c27b0"></div>
+      <div class="color-dot"        style="background:#fff;border-color:#444" data-color="#ffffff"></div>
+      <div class="color-dot"        style="background:#111;border-color:#555" data-color="#111111"></div>
+    </div>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" id="tool-clear"      data-tip="Limpiar">&#128465;</button>
+    <button class="tool-btn" id="tool-fullscreen" data-tip="Pantalla completa">&#9974;</button>
+  </div>
+</div>
+
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const params   = new URLSearchParams(location.search);
+  const pdfUrl   = params.get('pdf')   || '';
+  const pdfTitle = params.get('title') || 'Documento PHN';
+  const noDownload = params.get('nodownload') === '1';
+  document.getElementById('topbar-title').textContent = pdfTitle;
+  document.title = pdfTitle + ' — PHN';
+  if (noDownload) {
+    document.getElementById('btn-download').style.display = 'none';
+  }
+
+  var titleLower = pdfTitle.toLowerCase();
+  window.__phnIsCatalog = titleLower.indexOf('catálogo') !== -1 || titleLower.indexOf('catalogo') !== -1 || titleLower.indexOf('catalog') !== -1;
+
+  const viewerArea  = document.getElementById('viewer-area');
+  const thumbsPanel = document.getElementById('panel-thumbs');
+  const loadMsg     = document.getElementById('loading-msg');
+  const pageInfo    = document.getElementById('page-info');
+
+  const isMobile = window.innerWidth <= 768;
+  let pdfDoc     = null;
+  let baseScale  = isMobile ? 0.7 : 1.5;
+  let zoomLevel  = 1.0;
+  let scale      = baseScale;
+  let curPage    = 1;
+  let activeTool = 'cursor';
+  let drawColor  = '#ffeb3b';
+  let drawing    = false;
+  let lastX = 0, lastY = 0;
+
+  const drawContexts = {};  // pageNum → CanvasRenderingContext2D
+  const pageStates   = {};  // pageNum → { container, mainC, drawC, rendered }
+  let pageObserver   = null;
+
+  // ── Crear contenedor placeholder para una página ─────────────────────────
+  function createContainer(pageNum, w, h) {
+    var container = document.createElement('div');
+    container.className    = 'page-container';
+    container.dataset.page = pageNum;
+
+    if (isMobile) {
+      // En móvil la anchura es 100% via CSS; la altura la controla el canvas.
+      // El placeholder usa padding-bottom para preservar el aspect ratio
+      // mientras el canvas no ha renderizado aún.
+      var ph = document.createElement('div');
+      ph.className = 'page-ph';
+      ph.style.paddingBottom = (h / w * 100).toFixed(3) + '%';
+      container.appendChild(ph);
+    } else {
+      container.style.width  = w + 'px';
+      container.style.height = h + 'px';
+      var ph = document.createElement('div');
+      ph.className = 'page-ph';
+      container.appendChild(ph);
+    }
+
+    var mainC = document.createElement('canvas');
+    mainC.className = 'main-c';
+    mainC.width  = w; mainC.height = h;
+    mainC.style.display = 'none';
+
+    var drawC = document.createElement('canvas');
+    drawC.className = 'draw-c';
+    drawC.width  = w; drawC.height = h;
+
+    container.appendChild(mainC);
+    container.appendChild(drawC);
+
+
+    viewerArea.appendChild(container);
+
+    drawContexts[pageNum] = drawC.getContext('2d');
+    pageStates[pageNum]   = { container: container, mainC: mainC, drawC: drawC, rendered: false };
+  }
+
+  // ── Renderizar una página cuando entra en la vista ───────────────────────
+  function renderPage(pageNum) {
+    var state = pageStates[pageNum];
+    if (!state || state.rendered || state.rendering) return;
+    state.rendering = true;
+
+    pdfDoc.getPage(pageNum).then(function(page) {
+      var vp = page.getViewport({ scale: scale });
+      var mainC = state.mainC;
+      mainC.width  = vp.width;  mainC.height  = vp.height;
+      state.drawC.width = vp.width; state.drawC.height = vp.height;
+      drawContexts[pageNum] = state.drawC.getContext('2d');
+
+      // En desktop actualizar tamaño del contenedor; en móvil lo controla el CSS
+      if (!isMobile) {
+        state.container.style.width  = vp.width  + 'px';
+        state.container.style.height = vp.height + 'px';
+      }
+
+      return page.render({ canvasContext: mainC.getContext('2d'), viewport: vp }).promise;
+    }).then(function() {
+      state.rendered  = true;
+      state.rendering = false;
+      var ph = state.container.querySelector('.page-ph');
+      if (ph) ph.remove();           // quitar placeholder ANTES de mostrar canvas
+      state.mainC.style.display = 'block';
+      attachDrawEvents(pageNum, state.drawC);
+    }).catch(function() {
+      state.rendering = false;
+    });
+  }
+
+  // ── Configurar IntersectionObserver para carga perezosa ──────────────────
+  function setupObserver() {
+    if (pageObserver) pageObserver.disconnect();
+    var preloadMargin = isMobile ? '150px 0px' : '300px 0px';
+    pageObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var pn = parseInt(entry.target.dataset.page);
+        renderPage(pn);
+        if (pn + 1 <= pdfDoc.numPages) renderPage(pn + 1);
+        if (!isMobile) {
+          if (pn + 2 <= pdfDoc.numPages) renderPage(pn + 2);
+          if (pn > 1) renderPage(pn - 1);
+        }
+      });
+    }, { rootMargin: preloadMargin, threshold: 0 });
+
+    viewerArea.querySelectorAll('.page-container').forEach(function(c) {
+      pageObserver.observe(c);
+    });
+  }
+
+  // ── Inicializar: obtener dimensiones y crear contenedores ─────────────────
+  function initPages() {
+    // Usamos la página 1 como referencia de tamaño para todos los placeholders
+    pdfDoc.getPage(1).then(function(page1) {
+      var vp1 = page1.getViewport({ scale: scale });
+      for (var i = 1; i <= pdfDoc.numPages; i++) {
+        createContainer(i, vp1.width, vp1.height);
+      }
+      loadMsg.style.display = 'none';
+      setupObserver();
+      updateCurrentPage();
+      // Miniaturas solo en desktop
+      if (!isMobile) buildThumbs();
+    });
+  }
+
+  // ── Detectar página visible ───────────────────────────────────────────────
+  function updateCurrentPage() {
+    var containers = viewerArea.querySelectorAll('.page-container');
+    var viewMid = window.scrollY + window.innerHeight / 2;
+    var found = 1;
+    containers.forEach(function(c) {
+      var rect = c.getBoundingClientRect();
+      if (rect.top + window.scrollY <= viewMid)
+        found = parseInt(c.dataset.page);
+    });
+    if (found !== curPage) {
+      curPage = found;
+      pageInfo.textContent = curPage + ' / ' + pdfDoc.numPages;
+      document.querySelectorAll('.thumb-wrap').forEach(function(el, i) {
+        el.classList.toggle('active', i + 1 === curPage);
+      });
+    }
+  }
+
+  window.addEventListener('scroll', updateCurrentPage);
+
+  // ── Ir a página ───────────────────────────────────────────────────────────
+  function goToPage(num) {
+    var c = viewerArea.querySelector('[data-page="' + num + '"]');
+    if (c) c.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+
+  // ── Miniaturas (desktop) con carga perezosa ───────────────────────────────
+  function buildThumbs() {
+    thumbsPanel.innerHTML = '';
+    var thumbObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var tc  = entry.target.querySelector('canvas');
+        var pn  = parseInt(entry.target.dataset.page);
+        if (tc.dataset.rendered) return;
+        tc.dataset.rendered = '1';
+        pdfDoc.getPage(pn).then(function(page) {
+          var vp = page.getViewport({ scale: 0.22 });
+          tc.width = vp.width; tc.height = vp.height;
+          page.render({ canvasContext: tc.getContext('2d'), viewport: vp });
+        });
+        thumbObs.unobserve(entry.target);
+      });
+    }, { root: thumbsPanel, rootMargin: '100px', threshold: 0 });
+
+    for (var i = 1; i <= pdfDoc.numPages; i++) {
+      (function(pageNum) {
+        var wrap  = document.createElement('div');
+        var card  = document.createElement('div');
+        var tc    = document.createElement('canvas');
+        var label = document.createElement('div');
+        wrap.className = 'thumb-wrap' + (pageNum === 1 ? ' active' : '');
+        wrap.dataset.page = pageNum;
+        card.className = 'thumb-card';
+        label.className = 'thumb-num';
+        label.textContent = pageNum;
+        card.appendChild(tc);
+        wrap.appendChild(card);
+        wrap.appendChild(label);
+        thumbsPanel.appendChild(wrap);
+        thumbObs.observe(wrap);
+        wrap.addEventListener('click', function() { goToPage(pageNum); });
+      })(i);
+    }
+  }
+
+  // ── Cargar PDF ────────────────────────────────────────────────────────────
+  if (pdfUrl) {
+    viewerArea.innerHTML = '';
+    viewerArea.appendChild(loadMsg);
+    loadMsg.style.display = 'block';
+
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(doc) {
+      pdfDoc = doc;
+      pageInfo.textContent = '1 / ' + doc.numPages;
+      initPages();
+    }).catch(function(err) {
+      loadMsg.innerHTML = '<span>⚠️</span>No se pudo cargar el PDF.<br><small style="color:#666">' + (err && err.message ? err.message : '') + '</small>';
+    });
+  } else {
+    loadMsg.innerHTML = '<span>⚠️</span>No se especificó ningún PDF.';
+  }
+
+  // ── Navegación ────────────────────────────────────────────────────────────
+  document.getElementById('btn-prev').addEventListener('click', function() {
+    if (curPage > 1) goToPage(curPage - 1);
+  });
+  document.getElementById('btn-next').addEventListener('click', function() {
+    if (pdfDoc && curPage < pdfDoc.numPages) goToPage(curPage + 1);
+  });
+  document.addEventListener('keydown', function(ev) {
+    if (ev.key === 'ArrowDown' || ev.key === 'ArrowRight') { if (pdfDoc && curPage < pdfDoc.numPages) goToPage(curPage + 1); }
+    if (ev.key === 'ArrowUp'   || ev.key === 'ArrowLeft')  { if (curPage > 1) goToPage(curPage - 1); }
+  });
+
+  // ── Zoom ──────────────────────────────────────────────────────────────────
+  function applyZoom() {
+    scale = baseScale * zoomLevel;
+    document.getElementById('zoom-display').value = Math.round(zoomLevel * 100) + '%';
+    if (!pdfDoc) return;
+    var savedPage = curPage;
+
+    // Resetear estado de todas las páginas y restaurar placeholder si falta
+    Object.keys(pageStates).forEach(function(k) {
+      var st = pageStates[k];
+      st.rendered  = false;
+      st.rendering = false;
+      st.mainC.style.display = 'none';
+      if (!st.container.querySelector('.page-ph')) {
+        var ph = document.createElement('div');
+        ph.className = 'page-ph';
+        // En móvil restaurar el aspect ratio del placeholder
+        if (isMobile && st.mainC.height && st.mainC.width) {
+          ph.style.paddingBottom = (st.mainC.height / st.mainC.width * 100).toFixed(3) + '%';
+        }
+        st.container.insertBefore(ph, st.mainC);
+      }
+    });
+
+    // Reconectar observer (maneja las páginas fuera de vista)
+    if (pageObserver) pageObserver.disconnect();
+    setupObserver();
+
+    // Renderizar la página actual y sus vecinas de forma explícita e inmediata
+    // (no confiar solo en el observer para las páginas ya en pantalla)
+    renderPage(savedPage);
+    if (savedPage > 1)                  renderPage(savedPage - 1);
+    if (savedPage < pdfDoc.numPages)    renderPage(savedPage + 1);
+
+    goToPage(savedPage);
+  }
+  document.getElementById('btn-zoom-in').addEventListener('click',  function() { zoomLevel = Math.min(zoomLevel + 0.2, 3.0); applyZoom(); });
+  document.getElementById('btn-zoom-out').addEventListener('click', function() { zoomLevel = Math.max(zoomLevel - 0.2, 0.3); applyZoom(); });
+  document.getElementById('btn-zoom-fit').addEventListener('click', function() { zoomLevel = 1.0; applyZoom(); });
+
+  // ── Descargar / Volver ────────────────────────────────────────────────────
+  document.getElementById('btn-download').addEventListener('click', function() {
+    var a = document.createElement('a'); a.href = pdfUrl; a.download = pdfTitle + '.pdf'; a.click();
+  });
+  document.getElementById('btn-back').addEventListener('click', function() { history.back(); });
+  document.getElementById('tool-fullscreen').addEventListener('click', function() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  // ── Herramientas de dibujo ────────────────────────────────────────────────
+  function setTool(name) {
+    activeTool = name;
+    document.querySelectorAll('.tool-btn').forEach(function(b) { b.classList.remove('active'); });
+    var el = document.getElementById('tool-' + name);
+    if (el) el.classList.add('active');
+    var show = name !== 'cursor';
+    viewerArea.querySelectorAll('.draw-c').forEach(function(c) {
+      c.style.display = show ? 'block' : 'none';
+      c.style.cursor  = name === 'eraser' ? 'cell' : 'crosshair';
+    });
+    // Ocultar hotspots cuando se usan herramientas de dibujo
+    viewerArea.querySelectorAll('.phn-hotspot').forEach(function(o) {
+      o.style.display = show ? 'none' : '';
+    });
+  }
+
+  ['cursor','draw','highlight','text','eraser'].forEach(function(t) {
+    document.getElementById('tool-' + t).addEventListener('click', function() { setTool(t); });
+  });
+
+  // Cerrar popup de producto con Escape
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      var popup = document.getElementById('phn-product-popup');
+      if(popup) popup.classList.remove('visible');
+    }
+  });
+
+  document.getElementById('tool-clear').addEventListener('click', function() {
+    Object.values(drawContexts).forEach(function(ctx) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    });
+  });
+
+  document.querySelectorAll('.color-dot').forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      document.querySelectorAll('.color-dot').forEach(function(d) { d.classList.remove('active'); });
+      dot.classList.add('active');
+      drawColor = dot.dataset.color;
+    });
+  });
+
+  function attachDrawEvents(pageNum, drawC) {
+    var ctx = drawContexts[pageNum];
+
+    function getPos(e) {
+      var src = e.touches ? e.touches[0] : e;
+      var r   = drawC.getBoundingClientRect();
+      return {
+        x: (src.clientX - r.left) * (drawC.width  / r.width),
+        y: (src.clientY - r.top)  * (drawC.height / r.height)
+      };
+    }
+    function startDraw(e) {
+      if (activeTool === 'cursor') return;
+      e.preventDefault();
+      drawing = true;
+      var pos = getPos(e); lastX = pos.x; lastY = pos.y;
+      if (activeTool === 'text') {
+        var txt = prompt('Escribe el texto:');
+        if (txt) { ctx.font = '18px sans-serif'; ctx.fillStyle = drawColor; ctx.fillText(txt, lastX, lastY); }
+        drawing = false;
+      }
+    }
+    function moveDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      var pos = getPos(e);
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.lineCap = 'round';
+      if (activeTool === 'highlight') {
+        ctx.globalAlpha = 0.35; ctx.strokeStyle = drawColor; ctx.lineWidth = 20;
+      } else if (activeTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out'; ctx.strokeStyle = 'rgba(0,0,0,1)'; ctx.lineWidth = 26;
+      } else {
+        ctx.globalAlpha = 1; ctx.strokeStyle = drawColor; ctx.lineWidth = 2.5;
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+      lastX = pos.x; lastY = pos.y;
+    }
+    function endDraw() { drawing = false; }
+
+    drawC.addEventListener('mousedown',  startDraw);
+    drawC.addEventListener('mousemove',  moveDraw);
+    drawC.addEventListener('mouseup',    endDraw);
+    drawC.addEventListener('mouseleave', endDraw);
+    // Soporte táctil
+    drawC.addEventListener('touchstart', startDraw, { passive: false });
+    drawC.addEventListener('touchmove',  moveDraw,  { passive: false });
+    drawC.addEventListener('touchend',   endDraw);
+  }
+
+  setTool('cursor');
+
+  // ── Hotspots de producto sobre páginas del PDF ──
+  function addHotspots(pageNum, container) {
+    if (!window.__phnIsCatalog || typeof PHN_HOTSPOTS === 'undefined' || typeof PHN_CATALOG === 'undefined') return;
+    var titleL = pdfTitle.toLowerCase();
+    var isCosm = titleL.indexOf('cosmético') !== -1 || titleL.indexOf('cosmetico') !== -1 || titleL.indexOf('cosmetic') !== -1;
+    var mapKey = isCosm ? 'cosmeticos' : 'proher';
+    var map = PHN_HOTSPOTS[mapKey];
+    if (!map || !map[pageNum]) return;
+
+    map[pageNum].forEach(function(hs, idx) {
+      var p = PHN_CATALOG[hs.id];
+      if (!p) return;
+
+      var div = document.createElement('div');
+      var shape = hs.shape || '';
+      div.className = 'phn-hotspot' + (shape ? ' ' + shape : '');
+      div.style.left = (hs.x - hs.w / 2) + '%';
+      div.style.top = (hs.y - hs.h / 2) + '%';
+      div.style.width = hs.w + '%';
+      div.style.height = hs.h + '%';
+      div.dataset.page = pageNum;
+      div.dataset.idx = idx;
+      div.dataset.product = hs.id;
+
+      div.addEventListener('click', function(e){
+        e.stopPropagation();
+        var popup = document.getElementById('phn-product-popup');
+        document.getElementById('popup-img').src = 'productos/' + p.img;
+        document.getElementById('popup-name').textContent = p.nombre;
+        document.getElementById('popup-cta').href = 'productos/ficha.html?id=' + encodeURIComponent(hs.id);
+        popup.classList.add('visible');
+      });
+
+            container.appendChild(div);
+    });
+  }
+
+  // Llamar addHotspots cuando una página termina de renderizar
+  var origRenderPage = renderPage;
+  renderPage = function(pageNum) {
+    var state = pageStates[pageNum];
+    if (state && state.rendered) {
+      // Ya renderizada, solo agregar hotspots si no los tiene
+      if (!state.container.querySelector('.phn-hotspot')) addHotspots(pageNum, state.container);
+      return;
+    }
+    // Guardar referencia al then original
+    var oldRendered = state ? state.rendered : false;
+    origRenderPage(pageNum);
+    // Esperar a que termine el render y agregar hotspots
+    var checkInterval = setInterval(function() {
+      var st = pageStates[pageNum];
+      if (st && st.rendered && !st.container.querySelector('.phn-hotspot')) {
+        addHotspots(pageNum, st.container);
+        clearInterval(checkInterval);
+      }
+    }, 200);
+    // Safety: limpiar después de 10s
+    setTimeout(function() { clearInterval(checkInterval); }, 10000);
+  };
+
+
+</script>
+<!-- Popup de producto -->
+<div id="phn-product-popup" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="phn-popup-card">
+    <img id="popup-img" src="" alt="">
+    <div class="popup-name" id="popup-name"></div>
+    <a class="popup-cta" id="popup-cta" href="#">Más información</a>
+  </div>
+</div>
+
+<script src="src/features/catalogo-hotspots.js"></script>
+<script src="src/features/productos/data.js"></script>
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var title = (params.get('title') || '').toLowerCase();
+  var isCatalog = title.indexOf('catálogo') !== -1 || title.indexOf('catalogo') !== -1 || title.indexOf('catalog') !== -1;
+  if (!isCatalog || typeof PHN_CATALOG === 'undefined') return;
+
+  var isCosmeticos = title.indexOf('cosmético') !== -1 || title.indexOf('cosmetico') !== -1 || title.indexOf('cosmetic') !== -1;
+  var cosmeticKeys = ['VR-4 GEL','DB-6 CREMA','COLAGENO 80/20','COLAGENO 50/50','MASCARILLA','F.VIT-GEL'];
+
+  // Filtrar productos según tipo de catálogo
+  var keys = Object.keys(PHN_CATALOG).filter(function(k){
+    var isCosmetic = cosmeticKeys.indexOf(k) !== -1;
+    return isCosmeticos ? isCosmetic : !isCosmetic;
+  });
+
+  // Crear panel flotante
+  var style = document.createElement('style');
+  style.textContent = '#phn-prod-panel{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#1a1a1a;border-top:2px solid #70B62F;transform:translateY(calc(100% - 48px));transition:transform .35s cubic-bezier(.4,0,.2,1)}#phn-prod-panel.open{transform:translateY(0)}#phn-prod-panel-toggle{width:100%;height:48px;background:#1a1a1a;border:none;color:#fff;font-size:.88em;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;letter-spacing:.03em}#phn-prod-panel-toggle:hover{background:#222}#phn-prod-panel-toggle .arrow{transition:transform .3s;font-size:1.2em}#phn-prod-panel.open .arrow{transform:rotate(180deg)}#phn-prod-grid{max-height:320px;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}#phn-prod-grid::-webkit-scrollbar{width:4px}#phn-prod-grid::-webkit-scrollbar-thumb{background:#444;border-radius:2px}.ppanel-card{background:#222;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none;color:#fff;display:flex;flex-direction:column}.ppanel-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(112,182,47,.3)}.ppanel-img-wrap{position:relative;background:#2a2a2a;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}.ppanel-img-wrap img{max-width:85%;max-height:85%;object-fit:contain}.ppanel-overlay{position:absolute;inset:0;background:rgba(112,182,47,.85);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s}.ppanel-card:hover .ppanel-overlay{opacity:1}.ppanel-overlay span{color:#fff;font-size:.75em;font-weight:700;padding:6px 14px;border:2px solid #fff;border-radius:999px;letter-spacing:.04em}.ppanel-name{padding:8px 10px;font-size:.72em;font-weight:600;text-align:center;line-height:1.3}@media(max-width:768px){#phn-prod-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;padding:12px 14px;max-height:260px}}';
+  document.head.appendChild(style);
+
+  var panel = document.createElement('div');
+  panel.id = 'phn-prod-panel';
+  var toggleBtn = document.createElement('button');
+  toggleBtn.id = 'phn-prod-panel-toggle';
+  toggleBtn.innerHTML = '<span class="arrow">▲</span> Productos del catálogo';
+  var grid = document.createElement('div');
+  grid.id = 'phn-prod-grid';
+
+  keys.forEach(function(k){
+    var p = PHN_CATALOG[k];
+    var a = document.createElement('a');
+    a.className = 'ppanel-card';
+    a.href = 'productos/ficha.html?id=' + encodeURIComponent(k);
+    a.innerHTML = '<div class="ppanel-img-wrap"><img src="productos/' + p.img + '" alt="' + p.nombre + '" loading="lazy"><div class="ppanel-overlay"><span>Más información</span></div></div><div class="ppanel-name">' + p.nombre + '</div>';
+    grid.appendChild(a);
+  });
+
+  panel.appendChild(toggleBtn);
+  panel.appendChild(grid);
+  document.body.appendChild(panel);
+
+  toggleBtn.addEventListener('click', function(){
+    panel.classList.toggle('open');
+  });
+})();
+</script>
+<script src="compra/js/footer.js" data-root=""></script>
+</body>
+</html>

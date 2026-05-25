@@ -1,0 +1,6 @@
+/**
+ * main.css — Punto de entrada de estilos
+ * Importa tokens y base. Los estilos de componentes viven en renderer.js (inline)
+ * porque se construyen dinámicamente desde content.js.
+ */
+@import './tokens.css';
