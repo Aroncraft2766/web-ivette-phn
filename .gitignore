@@ -22,9 +22,11 @@ node_modules/
 # Actualiza los pdfUrl en content.js y en cada experiencia/content.js con el link externo.
 *.pdf
 
-# Carpetas duplicadas (los archivos viven en public/)
-libros/
-animacion/
+# Carpetas duplicadas en raíz (los archivos viven en public/)
+/libros/
+/animacion/
 
 # Logs
 *.log
+
+.vercel

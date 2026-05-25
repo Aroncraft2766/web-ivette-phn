@@ -1,0 +1,28 @@
+# PDFs — muy grandes para despliegue (402 MB el más grande)
+# Hospedar en Google Drive y actualizar pdfUrl en content.js
+*.pdf
+
+# Carpetas duplicadas (los archivos live en public/)
+libros/
+animacion/
+
+# Archivos de editor y backups
+.axonia-backups/
+.axonia-trash/
+.vscode/
+.idea/
+
+# Archivos de desarrollo y ejemplos internos
+ejemplo/
+docs/
+Preguntas/
+TEXTOS.txt
+CHANGELOG.md
+GUIA_EDICION.md
+IMAGENES_Y_VIDEOS.md
+banners-productos/
+banners/
+banners-productos/
+
+# Claude
+.claude/
