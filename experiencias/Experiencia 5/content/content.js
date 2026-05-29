@@ -59,13 +59,13 @@ window.EXP_CONTENT = {
   backText: "← Volver al inicio",
 
   // ── BRANDING ──────────────────────────────────────────────────────────────
-  logoUrl:  "../../assets/logos/Logo PHN.webp",
+  logoUrl:  "../../public/images/logos/Logo PHN.webp",
   logoLink: "../../index.html",
   logoAlt:  "PHN — Proher Natura",
 
 
   products: [
-    { key: 'LH', nombre: 'F.VIT LH', img: '../../productos/imagen14.webp' },
+    { key: 'LH', nombre: 'F.VIT LH', img: '../../public/images/productos/imagen14.webp' },
   ],
 
 };

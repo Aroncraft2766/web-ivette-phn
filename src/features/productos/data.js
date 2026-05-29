@@ -1,8 +1,8 @@
-const PHN_CATALOG = {
+﻿const PHN_CATALOG = {
   'F.VIT-90': {
     nombre: 'F. VIT CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Digestivo', 'Metabolismo'], beneficiosKey: ['digestivo','metabolismo'],
-    img: 'imagen1.webp',
+    img: '../public/images/productos/imagen1.webp',
     precio: '$1,170',
     banners: ['../public/images/productos/banners/banner-FVIT-90.webp'],
     descripcion: 'PHN F.VIT cápsulas es un suplemento alimenticio a base de Semilla de trigo, Piña, Semilla de lino y Alga chlorella, formulado para coadyuvar en la regulación del metabolismo.',
@@ -19,7 +19,7 @@ const PHN_CATALOG = {
   'H-9': {
     nombre: 'H9 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Hepático'], beneficiosKey: ['hepatico'],
-    img: 'imagen2.webp',
+    img: '../public/images/productos/imagen2.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-H-9.webp'],
     descripcion: 'PHN H9 cápsulas es un suplemento alimenticio formulado como coadyuvante en el tratamiento de padecimientos hepáticos y biliares.',
@@ -36,7 +36,7 @@ const PHN_CATALOG = {
   'G-6': {
     nombre: 'G6 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Digestivo', 'Gástrico'], beneficiosKey: ['digestivo','gastrico'],
-    img: 'imagen3.webp',
+    img: '../public/images/productos/imagen3.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-G-6.webp'],
     descripcion: 'PHN G6 cápsulas es un suplemento alimenticio formulado como auxiliar en el tratamiento de padecimientos gástricos.',
@@ -53,7 +53,7 @@ const PHN_CATALOG = {
   'D-7': {
     nombre: 'D7 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Circulación', 'Colesterol'], beneficiosKey: ['circulacion','colesterol'],
-    img: 'imagen4.webp',
+    img: '../public/images/productos/imagen4.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-D-7.webp'],
     descripcion: 'PHN D7 cápsulas es un suplemento alimenticio formulado para coadyuvar en funciones depurativas y reguladoras del sistema linfático.',
@@ -70,7 +70,7 @@ const PHN_CATALOG = {
   'OV-12': {
     nombre: 'OV12 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Hormonal femenino'], beneficiosKey: ['hormonal'],
-    img: 'imagen5.webp',
+    img: '../public/images/productos/imagen5.webp',
     precio: '$588',
     descripcion: 'PHN OV12 cápsulas es un suplemento alimenticio formulado como coadyuvante en la regulación hormonal de la mujer.',
     ingredientes: 'Estigma de la flor de Azafrán (Crocus sativus), Raíz tuberosa de Ñame (Dioscorea composita), Flor de Lúpulo (Humulus lupulus), Hoja de Estragón (Artemisia dracunculus), Hoja de Moringa (Moringa oleifera), Vitamina C (Ácido ascórbico), Vitamina E (α-tocoferol), Vitamina B6 (Piridoxina), Vitamina B1 (Tiamina), Vitamina B9 (Ácido fólico), Vitamina D (Calciferol), Vitamina B12 (Cianocobalamina).',
@@ -86,7 +86,7 @@ const PHN_CATALOG = {
   'A-10': {
     nombre: 'A10 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Articulaciones'], beneficiosKey: ['articulaciones'],
-    img: 'imagen6.webp',
+    img: '../public/images/productos/imagen6.webp',
     precio: '$588',
     descripcion: 'PHN A10 cápsulas es un suplemento alimenticio a base de Cúrcuma y Nogal negro, formulado como coadyuvante en problemas articulares.',
     ingredientes: 'Rizoma de Cúrcuma (Curcuma longa), Flor de Lúpulo (Humulus lupulus), Semilla de Nogal negro (Juglans nigra), Flor y hoja de Malva (Malva sylvestris), Vitamina C (Ácido ascórbico), Vitamina E (α-tocoferol), Vitamina B6 (Piridoxina), Vitamina B1 (Tiamina), Vitamina A (Retinol), Vitamina K (Filoquinona), Vitamina D (Calciferol), Vitamina B12 (Cianocobalamina).',
@@ -102,7 +102,7 @@ const PHN_CATALOG = {
   'VC-1': {
     nombre: 'VC1 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Sistema inmune'], beneficiosKey: ['inmune'],
-    img: 'imagen7.webp',
+    img: '../public/images/productos/imagen7.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-VC-1.webp'],
     descripcion: 'PHN VC1 cápsulas es un suplemento alimenticio a base de Guanábana, Chirimoya y Vitamina C, formulado como auxiliar en el fortalecimiento del sistema inmune.',
@@ -119,7 +119,7 @@ const PHN_CATALOG = {
   'EUK-7': {
     nombre: 'EUK7 Jarabe', tipo: 'Líquido', tipoKey: 'liquido',
     beneficios: ['Respiratorio', 'Sistema inmune'], beneficiosKey: ['respiratorio','inmune'],
-    img: 'imagen8.webp',
+    img: '../public/images/productos/imagen8.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-EUK-7.webp'],
     descripcion: 'PHN EUK7 es un suplemento alimenticio a base de miel virgen de abeja y Té Limón, formulado para auxiliar en padecimientos de las vías respiratorias.',
@@ -136,7 +136,7 @@ const PHN_CATALOG = {
   'N-7': {
     nombre: 'N7 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Sistema nervioso', 'Estrés'], beneficiosKey: ['nervioso','estres'],
-    img: 'imagen9.webp',
+    img: '../public/images/productos/imagen9.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-N-7.webp'],
     descripcion: 'PHN N7 cápsulas es un suplemento alimenticio formulado como auxiliar en el tratamiento de estados de ansiedad, angustia e insomnio.',
@@ -153,7 +153,7 @@ const PHN_CATALOG = {
   'DB-6': {
     nombre: 'DB6 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Diabetes', 'Glucosa'], beneficiosKey: ['diabetes','glucosa'],
-    img: 'imagen10.webp',
+    img: '../public/images/productos/imagen10.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-DB-6.webp'],
     descripcion: 'PHN DB6 cápsulas es un suplemento alimenticio formulado como coadyuvante en padecimientos de páncreas y auxiliar en la regulación de los niveles de glucosa en la sangre.',
@@ -170,7 +170,7 @@ const PHN_CATALOG = {
   'R-12': {
     nombre: 'R12 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Renal'], beneficiosKey: ['renal'],
-    img: 'imagen11.webp',
+    img: '../public/images/productos/imagen11.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-R-12.webp'],
     descripcion: 'PHN R12 cápsulas es un suplemento alimenticio formulado como auxiliar en el tratamiento de padecimientos renales y vejiga.',
@@ -187,7 +187,7 @@ const PHN_CATALOG = {
   'CR-7': {
     nombre: 'CR7 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Cardiovascular', 'Circulación'], beneficiosKey: ['cardiovascular','circulacion'],
-    img: 'imagen12.webp',
+    img: '../public/images/productos/imagen12.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-CR-7.webp'],
     descripcion: 'PHN CR7 es un suplemento alimenticio a base de Zapote blanco y Moringa, formulado para auxiliar en funciones del sistema cardiovascular, coadyuvando a la estabilidad de la presión arterial y el flujo sanguíneo.',
@@ -204,7 +204,7 @@ const PHN_CATALOG = {
   'FIBRA': {
     nombre: 'FIBRA F.VIT', tipo: 'Polvo', tipoKey: 'polvo',
     beneficios: ['Digestivo'], beneficiosKey: ['digestivo'],
-    img: 'imagen13.webp',
+    img: '../public/images/productos/imagen13.webp',
     precio: '$975',
     banners: ['../public/images/productos/banners/banner-FIBRA.webp'],
     descripcion: 'PHN FIBRA F.VIT es un suplemento alimenticio a base de Semilla de Lino, Hoja de Moringa, Semilla de Chía, entre otros ingredientes, formulado para coadyuvar en el proceso digestivo.',
@@ -221,7 +221,7 @@ const PHN_CATALOG = {
   'LH': {
     nombre: 'F.VIT LH', tipo: 'Líquido', tipoKey: 'liquido',
     beneficios: ['Hepático'], beneficiosKey: ['hepatico'],
-    img: 'imagen14.webp',
+    img: '../public/images/productos/imagen14.webp',
     precio: '$1,000',
     banners: ['../public/images/productos/banners/banner-LH.webp'],
     descripcion: 'PHN F.VIT LH es un suplemento alimenticio a base de Aceite de Olivo Extra Virgen y plantas, formulado como coadyuvante en el proceso digestivo.',
@@ -238,7 +238,7 @@ const PHN_CATALOG = {
   'RGC-16': {
     nombre: 'RGC16 1L', tipo: 'Líquido', tipoKey: 'liquido',
     beneficios: ['Energía', 'Antioxidante'], beneficiosKey: ['energia','antioxidante'],
-    img: 'imagen15.webp',
+    img: '../public/images/productos/imagen15.webp',
     precio: '$1,000',
     banners: ['../public/images/productos/banners/banner-RGC-16.webp'],
     descripcion: 'PHN RGC-16 es un suplemento alimenticio formulado como coadyuvante en el proceso de la regeneración celular, potenciador del sistema linfático y función antioxidante.',
@@ -255,7 +255,7 @@ const PHN_CATALOG = {
   'F.VIT-GEL': {
     nombre: 'F.VIT GEL', tipo: 'Gel', tipoKey: 'gel',
     beneficios: ['Piel'], beneficiosKey: ['piel'],
-    img: 'imagen16.webp',
+    img: '../public/images/productos/imagen16.webp',
     precio: '$250',
     banners: ['../public/images/productos/banners/banner-FVIT-GEL.webp'],
     descripcion: 'PHN F.VIT gel es un producto tópico formulado como coadyuvante a la pérdida de elasticidad y tonificación de la piel.',
@@ -272,7 +272,7 @@ const PHN_CATALOG = {
   'AVI-13': {
     nombre: 'AVI13 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Sistema inmune', 'Respiratorio'], beneficiosKey: ['inmune','respiratorio'],
-    img: 'imagen17.webp',
+    img: '../public/images/productos/imagen17.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-AVI-13.webp', '../public/images/productos/banners/banner-AVI-13-liquido.webp'],
     descripcion: 'PHN AVI13 cápsulas es un suplemento alimenticio a base de Cúrcuma, Manzanilla y Sauco, formulado para coadyuvar en el refuerzo del sistema inmunológico.',
@@ -289,7 +289,7 @@ const PHN_CATALOG = {
   'F.VIT 6': {
     nombre: 'F.VIT 6 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Digestivo', 'Detox'], beneficiosKey: ['digestivo','detox'],
-    img: 'imagen18.webp',
+    img: '../public/images/productos/imagen18.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-FVIT-6.webp'],
     descripcion: 'PHN F.VIT 6 cápsulas es un suplemento alimenticio formulado como auxiliar en el tratamiento de problemas digestivos.',
@@ -306,7 +306,7 @@ const PHN_CATALOG = {
   'VR-4': {
     nombre: 'VR4 CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Circulación'], beneficiosKey: ['circulacion'],
-    img: 'imagen19.webp',
+    img: '../public/images/productos/imagen19.webp',
     precio: '$588',
     banners: ['../public/images/productos/banners/banner-VR-4.webp'],
     descripcion: 'PHN VR4 cápsulas es un suplemento alimenticio formulado como auxiliar en padecimientos causados por problemas circulatorios.',
@@ -323,7 +323,7 @@ const PHN_CATALOG = {
   'VR-4 GEL': {
     nombre: 'VR4 GEL', tipo: 'Gel', tipoKey: 'gel',
     beneficios: ['Circulación', 'Piel'], beneficiosKey: ['circulacion','piel'],
-    img: 'imagen20.webp',
+    img: '../public/images/productos/imagen20.webp',
     precio: '$250',
     banners: ['../public/images/productos/banners/banner-VR4-GEL.webp', '../public/images/productos/banners/banner-VR4-GEL-modelo.webp'],
     descripcion: 'PHN VR4 gel es un producto tópico formulado como auxiliar en padecimientos causados por problemas circulatorios.',
@@ -340,7 +340,7 @@ const PHN_CATALOG = {
   'DB-6 CREMA': {
     nombre: 'DB6 CREMA', tipo: 'Crema', tipoKey: 'crema',
     beneficios: ['Piel'], beneficiosKey: ['piel'],
-    img: 'imagen21.webp',
+    img: '../public/images/productos/imagen21.webp',
     precio: '$300',
     banners: ['../public/images/productos/banners/banner-DB6-CREMA.webp', '../public/images/productos/banners/banner-DB6-CREMA-modelo.webp'],
     descripcion: 'PHN DB6 crema es un producto tópico formulado como coadyuvante en la estimulación de la regeneración de la piel con problemas de resequedad extrema y agrietamiento.',
@@ -357,7 +357,7 @@ const PHN_CATALOG = {
   'KIT F. VIT MAX': {
     nombre: 'Kit F.VIT MAX', tipo: 'Kit', tipoKey: 'kit',
     beneficios: ['Metabolismo'], beneficiosKey: ['metabolismo'],
-    img: 'imagen24.webp',
+    img: '../public/images/productos/imagen24.webp',
     precio: '$2,999',
     descripcion: 'Kit completo PHN F.VIT MAX, formulado para coadyuvar en la regulación del metabolismo y el bienestar general.',
     ingredientes: 'Combinación de suplementos PHN seleccionados.',
@@ -373,7 +373,7 @@ const PHN_CATALOG = {
   'HERGY SX': {
     nombre: 'HERGY SX CAPS', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Energía masculina'], beneficiosKey: ['energia'],
-    img: 'imagen26.webp',
+    img: '../public/images/productos/imagen26.webp',
     precio: '$1,100',
     banners: ['../public/images/productos/banners/banner-HERGY-SX.webp'],
     descripcion: 'PHN HERGY SX cápsulas es un suplemento alimenticio a base de Damiana y Guaraná, formulado para mejorar el flujo sanguíneo y potenciar el rendimiento físico.',
@@ -390,7 +390,7 @@ const PHN_CATALOG = {
   'COLAGENO': {
     nombre: 'Colágeno CLGN', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Piel', 'Cabello'], beneficiosKey: ['piel','cabello'],
-    img: 'imagen27.webp',
+    img: '../public/images/productos/imagen27.webp',
     precio: '$250',
     descripcion: 'PHN CLGN cápsulas es un suplemento alimenticio a base de colágeno hidrolizado y ácido hialurónico que contribuye a la producción natural de colágeno para mantener la salud de la piel, cabello y uñas.',
     ingredientes: 'Colágeno hidrolizado, Ácido hialurónico, Cúrcuma (Curcuma longa), Tallo de Caléndula (Calendula officinalis), Parte aérea de Centella asiática (Centella asiatica), Biotina.',
@@ -406,7 +406,7 @@ const PHN_CATALOG = {
   'MINERALES': {
     nombre: 'CM Minerales', tipo: 'Cápsulas', tipoKey: 'capsulas',
     beneficios: ['Sistema nervioso', 'Energía'], beneficiosKey: ['nervioso','energia'],
-    img: 'imagen28.webp',
+    img: '../public/images/productos/imagen28.webp',
     precio: '$250',
     banners: ['../public/images/productos/banners/banner-MINERALES.webp'],
     descripcion: 'PHN CM MINERALES cápsulas es un suplemento a base de Citrato de magnesio y vitamina C que coadyuva a la disminución de los niveles de cortisol, mejora la calidad del sueño, combate la fatiga y mejora la concentración.',
@@ -423,7 +423,7 @@ const PHN_CATALOG = {
   'COLAGENO 80/20': {
     nombre: 'Colágeno 80/20', tipo: 'Crema', tipoKey: 'crema',
     beneficios: ['Piel', 'Cabello'], beneficiosKey: ['piel','cabello'],
-    img: 'imagen30.webp',
+    img: '../public/images/productos/imagen30.webp',
     precio: '$300',
     banners: ['../public/images/productos/banners/banner-COLAGENO-8020.webp', '../public/images/productos/banners/banner-COLAGENO-8020-modelo.webp'],
     descripcion: 'Suplemento de colágeno PHN en formulación 50/50, para el cuidado de la piel, cabello y uñas.',
@@ -440,7 +440,7 @@ const PHN_CATALOG = {
   'COLAGENO 50/50': {
     nombre: 'Colágeno 50/50', tipo: 'Crema', tipoKey: 'crema',
     beneficios: ['Piel', 'Cabello'], beneficiosKey: ['piel','cabello'],
-    img: 'imagen29.webp',
+    img: '../public/images/productos/imagen29.webp',
     precio: '$300',
     banners: ['../public/images/productos/banners/banner-COLAGENO-5050.webp', '../public/images/productos/banners/banner-COLAGENO-5050-modelo.webp'],
     descripcion: 'Suplemento de colágeno PHN en formulación 50/50, para el cuidado de la piel, cabello y uñas.',
@@ -457,7 +457,7 @@ const PHN_CATALOG = {
   'MASCARILLA': {
     nombre: 'Mascarilla PHN', tipo: 'Crema', tipoKey: 'crema',
     beneficios: ['Piel'], beneficiosKey: ['piel'],
-    img: 'imagen31.webp',
+    img: '../public/images/productos/imagen31.webp',
     precio: '$300',
     banners: ['../public/images/productos/banners/banner-MASCARILLA.webp', '../public/images/productos/banners/banner-MASCARILLA-modelo.webp'],
     descripcion: 'Mascarilla PHN, formulada para el cuidado y nutrición de la piel del rostro.',

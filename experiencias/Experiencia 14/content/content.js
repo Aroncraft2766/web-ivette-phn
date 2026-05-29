@@ -58,14 +58,14 @@ window.EXP_CONTENT = {
   backText: "← Volver al inicio",
 
   // ── BRANDING ──────────────────────────────────────────────────────────────
-  logoUrl:  "../../assets/logos/Logo PHN.webp",
+  logoUrl:  "../../public/images/logos/Logo PHN.webp",
   logoLink: "../../index.html",
   logoAlt:  "PHN — Proher Natura",
 
 
   products: [
-    { key: 'VR-4', nombre: 'VR4 CAPS', img: '../../productos/imagen19.webp' },
-    { key: 'VR-4 GEL', nombre: 'VR4 GEL', img: '../../productos/imagen20.webp' },
+    { key: 'VR-4', nombre: 'VR4 CAPS', img: '../../public/images/productos/imagen19.webp' },
+    { key: 'VR-4 GEL', nombre: 'VR4 GEL', img: '../../public/images/productos/imagen20.webp' },
   ],
 
 };

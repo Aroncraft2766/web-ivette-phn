@@ -66,13 +66,13 @@ window.EXP1_CONTENT = {
   backText: "← Volver al inicio",
 
   // ── BRANDING ──────────────────────────────────────────────────────────────
-  logoUrl:  "../../assets/logos/Logo PHN.webp",
+  logoUrl:  "../../public/images/logos/Logo PHN.webp",
   logoLink: "../../index.html",
   logoAlt:  "PHN — Proher Natura",
 
 
   products: [
-    { key: 'F.VIT-90', nombre: 'F.VIT 90 CAPS', img: '../../productos/imagen1.webp' },
+    { key: 'F.VIT-90', nombre: 'F.VIT 90 CAPS', img: '../../public/images/productos/imagen1.webp' },
   ],
 
 };

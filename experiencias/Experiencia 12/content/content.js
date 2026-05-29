@@ -58,15 +58,15 @@ window.EXP_CONTENT = {
   backText: "← Volver al inicio",
 
   // ── BRANDING ──────────────────────────────────────────────────────────────
-  logoUrl:  "../../assets/logos/Logo PHN.webp",
+  logoUrl:  "../../public/images/logos/Logo PHN.webp",
   logoLink: "../../index.html",
   logoAlt:  "PHN — Proher Natura",
 
 
   products: [
-    { key: 'RGC-16', nombre: 'RGC16 1L', img: '../../productos/imagen15.webp' },
-    { key: 'VC-1', nombre: 'VC1 CAPS', img: '../../productos/imagen7.webp' },
-    { key: 'N-7', nombre: 'N7 CAPS', img: '../../productos/imagen9.webp' },
+    { key: 'RGC-16', nombre: 'RGC16 1L', img: '../../public/images/productos/imagen15.webp' },
+    { key: 'VC-1', nombre: 'VC1 CAPS', img: '../../public/images/productos/imagen7.webp' },
+    { key: 'N-7', nombre: 'N7 CAPS', img: '../../public/images/productos/imagen9.webp' },
   ],
 
 };

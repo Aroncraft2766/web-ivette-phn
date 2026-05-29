@@ -29,4 +29,7 @@ node_modules/
 # Logs
 *.log
 
+# Playwright / herramientas de prueba
+.playwright-mcp/
+
 .vercel

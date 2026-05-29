@@ -706,11 +706,13 @@
     if (!lb) return '';
     var cards = lb.items.map(function (book) {
       var isBuyable = !!book.buyUrl;
-      var visorHref = 'visor.html?pdf=' + encodeURIComponent(book.pdfUrl) + '&title=' + encodeURIComponent(book.title);
+      var visorHref = book.viewerUrl
+        || ('visor-imagenes.html?catalog=proher&title=' + encodeURIComponent(book.title));
       var btnHref = isBuyable ? book.buyUrl : visorHref;
       var btnTarget = isBuyable ? ' target="_blank" rel="noopener"' : '';
       var btnClass = isBuyable ? 'lib-btn lib-btn--buy' : 'lib-btn';
-      var visorNoDownload = 'visor.html?pdf=' + encodeURIComponent(book.pdfUrl) + '&title=' + encodeURIComponent(book.title) + '&nodownload=1';
+      var visorNoDownload = book.viewerUrl
+        || ('visor-imagenes.html?catalog=proher&title=' + encodeURIComponent(book.title));
       return '<div class="lib-card">'
         + '<a class="lib-cover-wrap" href="' + (isBuyable ? visorNoDownload : visorHref) + '">'
         + '<img class="lib-cover" src="' + e(book.imageUrl) + '" alt="' + e(book.title) + '" />'

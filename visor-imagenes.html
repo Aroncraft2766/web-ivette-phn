@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor PHN</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       VARIABLES & RESET
+    ═══════════════════════════════════════════════════════════ */
+    :root {
+      --phn-green:      #70B62F;
+      --phn-green-dim:  rgba(112,182,47,0.35);
+      --phn-green-glow: rgba(112,182,47,0.18);
+      --bg-base:        #1e1e1e;
+      --bg-surface:     #2a2a2a;
+      --bg-panel:       #222222;
+      --bg-topbar:      #1a1a1a;
+      --bg-toolbar:     #161616;
+      --border:         #333333;
+      --border-subtle:  #252525;
+      --text-primary:   #e0e0e0;
+      --text-secondary: #888888;
+      --text-muted:     #555555;
+      --shadow-toolbar: 0 8px 32px rgba(0,0,0,0.6);
+      --r-sm: 4px; --r-md: 8px;
+      --topbar-h: 48px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #3c3c3c;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body.read-mode #panel-thumbs,
+    body.read-mode #annot-toolbar,
+    body.read-mode #mobile-annot-bar { display: none !important; }
+    body.read-mode #viewer-area { padding: 0; }
+
+    /* ═══════════════════════════════════════════════════════════
+       TOPBAR
+    ═══════════════════════════════════════════════════════════ */
+    #topbar {
+      height: var(--topbar-h);
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 3px;
+      padding: 0 10px;
+      position: sticky; top: 0; z-index: 200;
+      user-select: none;
+    }
+    #topbar-logo { height: 24px; width: auto; margin-right: 4px; flex-shrink: 0; }
+    #topbar-title {
+      font-size: 0.81em; font-weight: 600; color: #bbb;
+      flex: 1; min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tb-sep { width: 1px; height: 20px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+    .tb-btn {
+      background: transparent; border: 1px solid transparent;
+      color: var(--text-secondary);
+      width: 28px; height: 28px; border-radius: var(--r-sm);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 150ms, color 150ms, border-color 150ms, transform 100ms;
+      position: relative;
+    }
+    .tb-btn:hover   { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
+    .tb-btn:active  { transform: scale(0.92); }
+    .tb-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+    .tb-btn.active  { background: var(--phn-green-glow); border-color: var(--phn-green); color: var(--phn-green); }
+    #zoom-info, #page-info {
+      font-size: 0.72em; color: var(--text-muted);
+      text-align: center; flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+    #zoom-info  { min-width: 34px; }
+    #page-info  { min-width: 52px; color: var(--text-secondary); }
+    #btn-zoom-reset { font-size: 0.64em; font-weight: 700; width: 34px; }
+    #goto-page {
+      width: 40px; height: 26px;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); color: var(--text-primary);
+      font-size: 0.73em; text-align: center; outline: none; flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    #goto-page:focus { border-color: var(--phn-green); }
+    #goto-page::-webkit-inner-spin-button,
+    #goto-page::-webkit-outer-spin-button { -webkit-appearance: none; }
+    #goto-page { -moz-appearance: textfield; }
+    #btn-back {
+      background: var(--phn-green); border: none; color: #fff;
+      padding: 5px 11px; border-radius: var(--r-sm);
+      font-size: 0.77em; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; gap: 4px; white-space: nowrap;
+      transition: background 150ms, transform 100ms;
+    }
+    #btn-back:hover  { background: #5a9424; }
+    #btn-back:active { transform: scale(0.95); }
+
+    /* ═══════════════════════════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════════════════════════ */
+    #main { display: flex; min-height: calc(100vh - var(--topbar-h)); }
+
+    /* ═══════════════════════════════════════════════════════════
+       THUMBNAILS PANEL
+    ═══════════════════════════════════════════════════════════ */
+    #panel-thumbs {
+      width: 160px; min-width: 160px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      overflow-y: auto; overflow-x: hidden;
+      padding: 12px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+      position: sticky; top: var(--topbar-h);
+      height: calc(100vh - var(--topbar-h));
+      align-self: flex-start;
+    }
+    #panel-thumbs::-webkit-scrollbar { width: 3px; }
+    #panel-thumbs::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+    .thumb-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer;
+      animation: thumb-in 0.3s ease both;
+    }
+    @keyframes thumb-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .thumb-card {
+      background: #fff; border-radius: var(--r-sm); overflow: hidden;
+      width: 100%; border: 2px solid transparent;
+      transition: border-color 200ms, box-shadow 200ms;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      aspect-ratio: 0.772;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-wrap:hover .thumb-card { border-color: rgba(112,182,47,0.5); }
+    .thumb-wrap.active .thumb-card {
+      border-color: var(--phn-green);
+      box-shadow: 0 0 0 3px var(--phn-green-dim);
+    }
+    .thumb-img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .thumb-num { font-size: 0.63em; color: var(--text-muted); text-align: center; font-variant-numeric: tabular-nums; }
+    .thumb-wrap.active .thumb-num { color: var(--phn-green); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════════════
+       ANNOTATION TOOLBAR (RIGHT)
+    ═══════════════════════════════════════════════════════════ */
+    #annot-toolbar {
+      width: 56px; min-width: 56px;
+      background: var(--bg-toolbar);
+      border-left: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px;
+      padding: 12px 0 16px;
+      position: sticky; top: var(--topbar-h);
+      height: calc(100vh - var(--topbar-h));
+      align-self: flex-start;
+      overflow-y: auto; overflow-x: visible;
+      z-index: 100;
+      box-shadow: var(--shadow-toolbar);
+    }
+    #annot-toolbar::-webkit-scrollbar { display: none; }
+    .at-sep { width: 32px; height: 1px; background: var(--border-subtle); margin: 4px 0; flex-shrink: 0; }
+
+    .at-btn {
+      width: 38px; height: 38px; border-radius: var(--r-md);
+      background: transparent; border: 1px solid transparent;
+      color: var(--text-muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 150ms, color 150ms, border-color 150ms, transform 100ms;
+      flex-shrink: 0; position: relative;
+      animation: at-slide-in 0.4s ease both;
+    }
+    @keyframes at-slide-in {
+      from { opacity: 0; transform: translateX(10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .at-btn:hover  { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
+    .at-btn:active { transform: scale(0.90); }
+    .at-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+    .at-btn.active {
+      background: var(--phn-green-glow);
+      border-color: var(--phn-green);
+      color: var(--phn-green);
+      box-shadow: 0 0 10px var(--phn-green-glow);
+    }
+    .at-btn.active::before {
+      content: '';
+      position: absolute; right: -1px; top: 8px; bottom: 8px;
+      width: 3px; background: var(--phn-green);
+      border-radius: 2px 0 0 2px;
+    }
+    .at-btn.at-danger:hover { color: #e74c3c; border-color: rgba(231,76,60,0.35); background: rgba(231,76,60,0.08); }
+
+    /* Custom tooltips (appear to LEFT of toolbar) */
+    .at-btn[data-tip]::after {
+      content: attr(data-tip);
+      position: fixed;
+      right: 70px; /* toolbar 56px + gap */
+      background: #111; color: #ddd;
+      font-size: 0.7em; white-space: nowrap;
+      padding: 4px 8px; border-radius: var(--r-sm);
+      pointer-events: none; opacity: 0;
+      transition: opacity 120ms;
+      z-index: 9999;
+      border: 1px solid var(--border);
+      transform: translateY(-50%);
+    }
+    .at-btn[data-tip]:hover::after { opacity: 1; }
+
+    /* ═══════════════════════════════════════════════════════════
+       CONTEXTUAL PANEL (inside toolbar)
+    ═══════════════════════════════════════════════════════════ */
+    #annot-ctx-panel {
+      width: 100%;
+      padding: 6px 4px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      margin-top: 4px;
+    }
+    .ctx-label { font-size: 0.58em; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* Color swatches */
+    #ctx-colors {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .color-swatch {
+      width: 22px; height: 22px; border-radius: 50%;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color 150ms, transform 150ms;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .color-swatch:hover  { transform: scale(1.18); }
+    .color-swatch.active { border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,0.25); }
+    .color-swatch .chk   { display: none; }
+    .color-swatch.active .chk { display: block; }
+    /* Custom color picker */
+    #swatch-custom {
+      background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      overflow: hidden;
+    }
+    #swatch-custom input[type="color"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+      border: none; padding: 0;
+    }
+
+    /* Size slider */
+    #ctx-size-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      width: 100%; padding: 0 8px;
+    }
+    #ctx-size-preview {
+      background: var(--text-secondary); border-radius: 50%;
+      transition: width 100ms, height 100ms;
+      flex-shrink: 0;
+    }
+    #annot-size {
+      -webkit-appearance: none; appearance: none;
+      width: 36px; height: 4px;
+      background: var(--border); border-radius: 2px;
+      outline: none; cursor: pointer;
+    }
+    #annot-size::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: var(--phn-green); cursor: pointer;
+      box-shadow: 0 0 4px var(--phn-green-dim);
+    }
+    #annot-size::-moz-range-thumb {
+      width: 13px; height: 13px; border-radius: 50%;
+      background: var(--phn-green); cursor: pointer; border: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       VIEWER AREA
+    ═══════════════════════════════════════════════════════════ */
+    #viewer-area {
+      flex: 1; min-width: 0;
+      background: #3c3c3c;
+      padding: 20px 0 80px;
+      display: flex; flex-direction: column; align-items: center; gap: 0;
+      --page-max-width: 900px;
+    }
+    .page-container {
+      position: relative;
+      width: var(--page-max-width, 900px);
+      max-width: 100%;
+      flex-shrink: 0;
+      background: #fff;
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5);
+    }
+    .page-container:first-child {
+      border-radius: 3px 3px 0 0;
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5),
+                  0 -6px 16px rgba(0,0,0,0.5);
+    }
+    .page-container:last-child {
+      border-radius: 0 0 3px 3px;
+      box-shadow: 6px 0 16px rgba(0,0,0,0.5), -6px 0 16px rgba(0,0,0,0.5),
+                  0 6px 16px rgba(0,0,0,0.5);
+    }
+    .page-img {
+      display: none; width: 100%; height: auto; vertical-align: bottom;
+    }
+    .page-ph {
+      width: 100%; aspect-ratio: 0.772;
+      background: linear-gradient(135deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+      background-size: 400% 400%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 100% 50%; }
+      100% { background-position:   0% 50%; }
+    }
+    #loading-msg { color: #999; font-size: 0.9em; margin-top: 80px; text-align: center; line-height: 2; }
+
+    /* ═══════════════════════════════════════════════════════════
+       ANNOTATION CANVAS
+    ═══════════════════════════════════════════════════════════ */
+    .annot-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 5; touch-action: none;
+      pointer-events: none;
+    }
+    body.tool-active .annot-canvas { pointer-events: all; }
+
+    /* Cursors per tool */
+    body.tool-pencil .annot-canvas {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cpath d='M13 2l5 5-10 10H4v-4z' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3Cpath d='M13 2l5 5-10 10H4v-4z' fill='none' stroke='%23333' stroke-width='.5'/%3E%3C/svg%3E") 2 18, crosshair;
+    }
+    body.tool-highlighter .annot-canvas {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='6' y='1' width='8' height='13' rx='1' fill='rgba(255,230,0,.75)' stroke='%23555' stroke-width='1'/%3E%3Crect x='8' y='14' width='4' height='4' fill='%23666'/%3E%3C/svg%3E") 10 18, text;
+    }
+    body.tool-text .annot-canvas { cursor: text; }
+    body.tool-eraser .annot-canvas {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='8' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3Ccircle cx='10' cy='10' r='8' fill='none' stroke='%23333' stroke-width='.5'/%3E%3C/svg%3E") 10 10, cell;
+    }
+    body.tool-arrow .annot-canvas,
+    body.tool-rect  .annot-canvas,
+    body.tool-circle .annot-canvas { cursor: crosshair; }
+
+    /* ═══════════════════════════════════════════════════════════
+       FLOATING TEXT INPUT
+    ═══════════════════════════════════════════════════════════ */
+    #text-input-overlay {
+      position: fixed;
+      background: transparent;
+      border: none; border-bottom: 2px solid var(--phn-green);
+      color: #111;
+      font-family: inherit;
+      outline: none;
+      min-width: 80px; max-width: 300px;
+      padding: 2px 4px;
+      z-index: 1000;
+      display: none;
+      caret-color: var(--phn-green);
+    }
+    #text-input-overlay.visible { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════
+       HOTSPOTS
+    ═══════════════════════════════════════════════════════════ */
+    .phn-hotspot {
+      position: absolute; z-index: 6;
+      cursor: pointer;
+      border-radius: 30% 30% 18% 18%;
+    }
+    .phn-hotspot.bottle-tall  { border-radius: 20% 20% 12% 12%; }
+    .phn-hotspot.bottle-jar   { border-radius: 15% 15% 10% 10%; }
+    body.tool-active .phn-hotspot { pointer-events: none; }
+
+    /* ═══════════════════════════════════════════════════════════
+       PRODUCT POPUP
+    ═══════════════════════════════════════════════════════════ */
+    #phn-product-popup {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.35);
+    }
+    #phn-product-popup.visible { display: flex; }
+    .phn-popup-card {
+      background: #fff; border-radius: 20px; padding: 28px 24px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      max-width: 380px; width: 90vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      animation: phn-popup-in 0.3s cubic-bezier(.34,1.4,.64,1);
+    }
+    @keyframes phn-popup-in {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .popup-img-wrap {
+      width: 200px; height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      background: #f7f7f7; border-radius: 14px; overflow: hidden;
+    }
+    .popup-img-wrap img {
+      max-width: 90%; max-height: 90%; object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+    }
+    .popup-name { font-size: 1em; font-weight: 700; color: #1a1a1a; text-align: center; }
+    .popup-desc { font-size: 0.8em; color: #555; text-align: center; line-height: 1.5; max-width: 320px; }
+    .popup-cta {
+      display: inline-block; background: var(--phn-green); color: #fff;
+      padding: 11px 30px; border-radius: 999px;
+      font-size: 0.9em; font-weight: 700; text-decoration: none;
+      transition: background 200ms, transform 150ms;
+      box-shadow: 0 4px 14px rgba(112,182,47,0.4); margin-top: 4px;
+    }
+    .popup-cta:hover { background: #5a9424; transform: translateY(-2px); }
+    .popup-close-hint { font-size: 0.7em; color: #aaa; margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════════════════════════ */
+    #phn-toast {
+      position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: #e0e0e0;
+      padding: 7px 16px; border-radius: 999px; font-size: 0.78em;
+      opacity: 0; transition: opacity 300ms;
+      pointer-events: none; z-index: 999;
+      white-space: nowrap; border: 1px solid var(--border);
+    }
+    #phn-toast.show { opacity: 1; }
+
+    /* ═══════════════════════════════════════════════════════════
+       PRINT
+    ═══════════════════════════════════════════════════════════ */
+    @media print {
+      #topbar, #panel-thumbs, #annot-toolbar, #mobile-annot-bar,
+      #phn-toast, #phn-product-popup, #phn-prod-panel { display: none !important; }
+      #main { display: block; }
+      #viewer-area { padding: 0; background: none; }
+      .page-container { box-shadow: none !important; max-width: 100% !important;
+        width: 100% !important; page-break-after: always; }
+      .annot-canvas { display: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE MOBILE
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) { .page-container { width: 100% !important; } }
+    @media (max-width: 768px) {
+      #panel-thumbs, #annot-toolbar { display: none; }
+      #topbar { padding: 0 8px; gap: 3px; }
+      #topbar-logo, .tb-sep { display: none; }
+      #btn-fit-width, #btn-fit-page, #btn-rotate, #btn-read, #btn-fs,
+      #btn-print, #btn-download-page, #btn-clear-all { display: none; }
+      #zoom-info { display: none; }
+      #page-info { min-width: 36px; font-size: 0.7em; }
+      #topbar-title { font-size: 0.8em; }
+      #btn-back { padding: 5px 9px; font-size: 0.74em; }
+      #viewer-area { padding: 0 0 62px; align-items: stretch; }
+      .page-container { box-shadow: none !important; border-radius: 0 !important; }
+      .popup-img-wrap { width: 150px !important; height: 150px !important; }
+    }
+    #mobile-annot-bar { display: none; }
+    @media (max-width: 768px) {
+      #mobile-annot-bar {
+        display: flex;
+        position: fixed; bottom: 0; left: 0; right: 0; height: 54px;
+        background: var(--bg-toolbar); border-top: 1px solid var(--border);
+        align-items: center; gap: 5px;
+        padding: 0 10px; z-index: 150; overflow-x: auto;
+      }
+      #mobile-annot-bar::-webkit-scrollbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ TOPBAR ══════════════════════════════════ -->
+<div id="topbar">
+  <img id="topbar-logo" src="public/images/logos/Logo PHN.webp" alt="PHN" />
+  <span id="topbar-title">Cargando…</span>
+  <div class="tb-sep"></div>
+
+  <!-- Zoom -->
+  <button class="tb-btn" id="btn-zoom-out" title="Reducir (Ctrl+−)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <span id="zoom-info">100%</span>
+  <button class="tb-btn" id="btn-zoom-in" title="Ampliar (Ctrl++)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-zoom-reset" title="Restablecer zoom (Ctrl+0)">100%</button>
+  <button class="tb-btn" id="btn-fit-width" title="Ajustar a ancho">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-fit-page" title="Ajustar a página">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+  </button>
+
+  <div class="tb-sep"></div>
+
+  <!-- Navigation -->
+  <button class="tb-btn" id="btn-prev" title="Anterior (←)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <span id="page-info">— / —</span>
+  <button class="tb-btn" id="btn-next" title="Siguiente (→)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+  </button>
+  <input type="number" id="goto-page" min="1" placeholder="Ir…" title="Ir a página (Enter)" />
+
+  <div class="tb-sep"></div>
+
+  <!-- Modes -->
+  <button class="tb-btn" id="btn-rotate" title="Rotar página 90°">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-read" title="Modo lectura (R)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-fs" title="Pantalla completa (F)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-print" title="Imprimir">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  </button>
+  <button class="tb-btn" id="btn-download-page" title="Descargar página como PNG">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+  <button class="tb-btn at-danger" id="btn-clear-all" title="Borrar todas las anotaciones del libro">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+  </button>
+
+  <div class="tb-sep"></div>
+  <button id="btn-back">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Volver
+  </button>
+</div>
+
+<!-- ══════════════════════════════════ MAIN ══════════════════════════════════ -->
+<div id="main">
+
+  <!-- Thumbnails -->
+  <div id="panel-thumbs"></div>
+
+  <!-- Viewer -->
+  <div id="viewer-area">
+    <div id="loading-msg">Cargando páginas…</div>
+  </div>
+
+  <!-- Annotation Toolbar (RIGHT) -->
+  <div id="annot-toolbar">
+    <button class="at-btn active" data-tool="" id="at-select" data-tip="Selección (S)" style="animation-delay:0ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+    </button>
+    <div class="at-sep"></div>
+    <button class="at-btn" data-tool="pencil" id="at-pencil" data-tip="Lápiz (P)" style="animation-delay:30ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+    </button>
+    <button class="at-btn" data-tool="highlighter" id="at-highlighter" data-tip="Resaltador (H)" style="animation-delay:60ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+    </button>
+    <button class="at-btn" data-tool="text" id="at-text" data-tip="Texto (T)" style="animation-delay:90ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+    </button>
+    <button class="at-btn" data-tool="arrow" id="at-arrow" data-tip="Flecha" style="animation-delay:120ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+    <button class="at-btn" data-tool="rect" id="at-rect" data-tip="Rectángulo" style="animation-delay:150ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+    </button>
+    <button class="at-btn" data-tool="circle" id="at-circle" data-tip="Círculo" style="animation-delay:180ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+    </button>
+    <button class="at-btn" data-tool="eraser" id="at-eraser" data-tip="Borrador (E)" style="animation-delay:210ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+    </button>
+    <div class="at-sep"></div>
+    <button class="at-btn" id="at-undo" data-tip="Deshacer (Ctrl+Z)" style="animation-delay:240ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    </button>
+    <button class="at-btn" id="at-redo" data-tip="Rehacer (Ctrl+Shift+Z)" style="animation-delay:270ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    </button>
+    <div class="at-sep"></div>
+    <button class="at-btn at-danger" id="at-clear" data-tip="Limpiar página" style="animation-delay:300ms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </button>
+
+    <!-- Contextual panel -->
+    <div id="annot-ctx-panel">
+      <div class="ctx-label">Color</div>
+      <div id="ctx-colors">
+        <div class="color-swatch active" data-color="#e74c3c" style="background:#e74c3c">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" data-color="#3498db" style="background:#3498db">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" data-color="#2ecc71" style="background:#2ecc71">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" data-color="#f39c12" style="background:#f39c12">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" data-color="#9b59b6" style="background:#9b59b6">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" data-color="#111111" style="background:#111111">
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="color-swatch" id="swatch-custom" title="Color personalizado">
+          <input type="color" id="annot-color" value="#e74c3c" />
+          <svg class="chk" width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="ctx-label" style="margin-top:4px">Grosor</div>
+      <div id="ctx-size-wrap">
+        <div id="ctx-size-preview" style="width:8px;height:8px;"></div>
+        <input type="range" id="annot-size" min="1" max="30" value="4" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile bottom annotation bar -->
+<div id="mobile-annot-bar">
+  <button class="at-btn active" data-tool="" id="mat-select">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+  </button>
+  <button class="at-btn" data-tool="pencil">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+  </button>
+  <button class="at-btn" data-tool="highlighter">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+  </button>
+  <button class="at-btn" data-tool="text">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+  </button>
+  <button class="at-btn" data-tool="arrow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+  <button class="at-btn" data-tool="eraser">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/></svg>
+  </button>
+  <input type="color" id="annot-color-m" value="#e74c3c" style="width:26px;height:26px;border-radius:50%;border:2px solid #555;cursor:pointer;padding:0;flex-shrink:0;background:none;" />
+  <button class="at-btn" id="mat-undo">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+  </button>
+  <button class="at-btn" id="mat-redo">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+  </button>
+  <button class="at-btn at-danger" id="mat-clear">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+  </button>
+</div>
+
+<!-- Floating text input -->
+<input type="text" id="text-input-overlay" placeholder="Escribe y presiona Enter…" />
+
+<!-- Product popup -->
+<div id="phn-product-popup" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="phn-popup-card">
+    <div class="popup-img-wrap"><img id="popup-img" src="" alt="" /></div>
+    <div class="popup-name" id="popup-name"></div>
+    <div class="popup-desc" id="popup-desc"></div>
+    <a class="popup-cta" id="popup-cta" href="#">Ver más</a>
+    <div class="popup-close-hint">Clic fuera para cerrar · ESC</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="phn-toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   CATALOG CONFIG
+═══════════════════════════════════════════════════════════════════════════ */
+var CATALOG_CONFIG = {
+  proher: {
+    folder: 'public/libros/catalogo-proher/pages',
+    pageCount: 68, missingPages: [], hotspotKey: 'proher',
+  },
+  cosmeticos: {
+    folder: 'public/libros/catalogo-cosmeticos/pages',
+    pageCount: 26, missingPages: [6], hotspotKey: 'cosmeticos',
+  },
+  jugos: {
+    folder: 'public/libros/jugos-v1/pages',
+    pageCount: 72, missingPages: [29,39,53,62], hotspotKey: null,
+  },
+  recetas: {
+    folder: 'public/libros/recetario/pages',
+    pageCount: 72, missingPages: [24,37], hotspotKey: null,
+  },
+};
+
+/* ─── URL params ─────────────────────────────────────────────────────── */
+var params     = new URLSearchParams(location.search);
+var catalogKey = params.get('catalog') || 'proher';
+var catTitle   = params.get('title')   || 'Catálogo PHN';
+var config     = CATALOG_CONFIG[catalogKey];
+
+document.getElementById('topbar-title').textContent = catTitle;
+document.title = catTitle + ' — PHN';
+
+if (!config) {
+  document.getElementById('loading-msg').textContent = 'Catálogo no encontrado.';
+  throw new Error('Catalog not found: ' + catalogKey);
+}
+
+/* ─── Available pages (skip missing) ────────────────────────────────── */
+var pages = [];
+var _missing = config.missingPages || [];
+for (var i = 1; i <= config.pageCount; i++) {
+  if (_missing.indexOf(i) === -1) pages.push(i);
+}
+
+/* ─── DOM refs ───────────────────────────────────────────────────────── */
+var viewerArea  = document.getElementById('viewer-area');
+var thumbsPanel = document.getElementById('panel-thumbs');
+var pageInfo    = document.getElementById('page-info');
+var zoomInfo    = document.getElementById('zoom-info');
+var isMobile    = window.innerWidth <= 768;
+var curSlot     = 1;
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ZOOM
+═══════════════════════════════════════════════════════════════════════ */
+var BASE_WIDTH = 900;
+var zoomLevel  = 1.0;
+var ZOOM_MIN   = 0.5;
+var ZOOM_MAX   = 3.0;
+var ZOOM_STEP  = 0.15;
+
+function applyZoom() {
+  var w = Math.round(BASE_WIDTH * zoomLevel);
+  viewerArea.style.setProperty('--page-max-width', w + 'px');
+  zoomInfo.textContent = Math.round(zoomLevel * 100) + '%';
+  requestAnimationFrame(function() { resizeAllCanvases(); });
+}
+
+function changeZoom(delta) {
+  zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +(zoomLevel + delta).toFixed(4)));
+  applyZoom();
+}
+
+document.getElementById('btn-zoom-in').addEventListener('click',    function() { changeZoom(+ZOOM_STEP); });
+document.getElementById('btn-zoom-out').addEventListener('click',   function() { changeZoom(-ZOOM_STEP); });
+document.getElementById('btn-zoom-reset').addEventListener('click', function() { zoomLevel = 1.0; applyZoom(); });
+
+document.getElementById('btn-fit-width').addEventListener('click', function() {
+  var avail = viewerArea.clientWidth;
+  zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, avail / BASE_WIDTH));
+  applyZoom();
+});
+document.getElementById('btn-fit-page').addEventListener('click', function() {
+  var avail = (window.innerHeight - 48) * 0.772;
+  zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, avail / BASE_WIDTH));
+  applyZoom();
+});
+
+/* Ctrl+scroll */
+window.addEventListener('wheel', function(e) {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  changeZoom(e.deltaY < 0 ? +ZOOM_STEP : -ZOOM_STEP);
+}, { passive: false });
+
+/* Pinch */
+var _pinchDist0 = null, _zoomAtPinch = 1;
+window.addEventListener('touchstart', function(e) {
+  if (e.touches.length === 2) {
+    _pinchDist0 = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    _zoomAtPinch = zoomLevel;
+  }
+}, { passive: true });
+window.addEventListener('touchmove', function(e) {
+  if (e.touches.length !== 2 || _pinchDist0 === null) return;
+  var d = Math.hypot(
+    e.touches[0].clientX - e.touches[1].clientX,
+    e.touches[0].clientY - e.touches[1].clientY
+  );
+  zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, _zoomAtPinch * (d / _pinchDist0)));
+  applyZoom();
+}, { passive: true });
+window.addEventListener('touchend', function() { _pinchDist0 = null; }, { passive: true });
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANNOTATION STATE & PERSISTENCE
+═══════════════════════════════════════════════════════════════════════ */
+var annotTool   = null;
+var annotColor  = '#e74c3c';
+var annotSize   = 4;
+var annotState  = {};
+var MAX_UNDO    = 30;
+var ANNOT_PFX   = 'phn-annotations-' + catalogKey + '-';
+
+function getState(pageNum) {
+  if (!annotState[pageNum]) {
+    annotState[pageNum] = { strokes: [], redoStack: [] };
+    var saved = localStorage.getItem(ANNOT_PFX + pageNum);
+    if (saved) { try { annotState[pageNum] = JSON.parse(saved); } catch(e) {} }
+  }
+  return annotState[pageNum];
+}
+
+function saveState(pageNum) {
+  try { localStorage.setItem(ANNOT_PFX + pageNum, JSON.stringify(annotState[pageNum])); }
+  catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CANVAS ENGINE
+═══════════════════════════════════════════════════════════════════════ */
+var _drawing      = false;
+var _startX, _startY, _liveX, _liveY;
+var _activeCanvas = null, _activePageNum = null;
+var _currentPts   = [];
+var _rafId        = null;
+
+/* DPR-correct canvas resize */
+function syncCanvasSize(canvas, container) {
+  var dpr  = window.devicePixelRatio || 1;
+  var cssW = container.offsetWidth;
+  var img  = container.querySelector('.page-img');
+  var cssH = img && img.naturalHeight > 0
+    ? Math.round(cssW * img.naturalHeight / img.naturalWidth)
+    : Math.round(cssW / 0.772);
+
+  canvas._cssW = cssW;
+  canvas._cssH = cssH;
+  canvas._dpr  = dpr;
+  canvas.width  = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width  = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+}
+
+function resizeAllCanvases() {
+  viewerArea.querySelectorAll('.page-container').forEach(function(c) {
+    if (!c.dataset.loaded) return;
+    var canvas = c.querySelector('.annot-canvas');
+    if (!canvas) return;
+    var pn = parseInt(c.dataset.page);
+    syncCanvasSize(canvas, c);
+    if (getState(pn).strokes.length) redrawCanvas(canvas, pn);
+  });
+}
+
+/* Full redraw (rAF-based, no getImageData) */
+function redrawCanvas(canvas, pageNum) {
+  var ctx = canvas.getContext('2d');
+  var cssW = canvas._cssW || parseFloat(canvas.style.width) || canvas.width;
+  var cssH = canvas._cssH || parseFloat(canvas.style.height) || canvas.height;
+  ctx.clearRect(0, 0, cssW, cssH);
+  var st = getState(pageNum);
+  st.strokes.forEach(function(s) { replayStroke(ctx, s, canvas); });
+}
+
+function replayStroke(ctx, s, canvas) {
+  var sx = canvas._cssW || parseFloat(canvas.style.width) || canvas.width;
+  var sy = canvas._cssH || parseFloat(canvas.style.height) || canvas.height;
+
+  ctx.save();
+  ctx.strokeStyle = s.color || '#e74c3c';
+  ctx.fillStyle   = s.color || '#e74c3c';
+  ctx.lineWidth   = (s.size || 4) * (sx / 900);
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+
+  if (s.tool === 'highlighter') {
+    ctx.globalAlpha = 0.38;
+    ctx.lineWidth  *= 5;
+    ctx.globalCompositeOperation = 'multiply';
+  }
+  if (s.tool === 'eraser') {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.globalAlpha = 1;
+    ctx.lineWidth *= 3;
+  }
+
+  if (s.tool === 'text') {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.font = Math.round((s.size || 4) * 4.5 * (sx / 900)) + 'px -apple-system,sans-serif';
+    ctx.fillText(s.text || '', s.x1 * sx, s.y1 * sy);
+    ctx.restore();
+    return;
+  }
+
+  if (s.tool === 'pencil' || s.tool === 'highlighter' || s.tool === 'eraser') {
+    var pts = s.pts || [];
+    if (pts.length < 2) {
+      if (pts.length === 1) {
+        ctx.beginPath();
+        ctx.arc(pts[0][0] * sx, pts[0][1] * sy, ctx.lineWidth / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore(); return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0] * sx, pts[0][1] * sy);
+    for (var i = 1; i < pts.length - 1; i++) {
+      var mx = (pts[i][0] + pts[i+1][0]) / 2 * sx;
+      var my = (pts[i][1] + pts[i+1][1]) / 2 * sy;
+      ctx.quadraticCurveTo(pts[i][0] * sx, pts[i][1] * sy, mx, my);
+    }
+    var last = pts[pts.length - 1];
+    ctx.lineTo(last[0] * sx, last[1] * sy);
+    ctx.stroke();
+    ctx.restore(); return;
+  }
+
+  var x1 = s.x1 * sx, y1 = s.y1 * sy, x2 = s.x2 * sx, y2 = s.y2 * sy;
+  ctx.beginPath();
+  if (s.tool === 'arrow') {
+    drawArrowOnCtx(ctx, x1, y1, x2, y2);
+  } else if (s.tool === 'rect') {
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+  } else if (s.tool === 'circle') {
+    var rx = (x2 - x1) / 2, ry = (y2 - y1) / 2;
+    ctx.ellipse(x1 + rx, y1 + ry, Math.abs(rx), Math.abs(ry), 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawArrowOnCtx(ctx, x1, y1, x2, y2) {
+  var headLen = Math.max(12, ctx.lineWidth * 3);
+  var angle   = Math.atan2(y2 - y1, x2 - x1);
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+  ctx.stroke();
+}
+
+/* rAF render loop for live drawing */
+function renderLiveStroke() {
+  _rafId = null;
+  if (!_drawing || !_activeCanvas) return;
+  var ctx = _activeCanvas.getContext('2d');
+  redrawCanvas(_activeCanvas, _activePageNum);
+  if (annotTool === 'pencil' || annotTool === 'highlighter' || annotTool === 'eraser') {
+    replayStroke(ctx, { tool: annotTool, color: annotColor, size: annotSize, pts: _currentPts }, _activeCanvas);
+  } else if (annotTool && annotTool !== 'text' && _startX !== undefined) {
+    replayStroke(ctx, { tool: annotTool, color: annotColor, size: annotSize,
+      x1: _startX, y1: _startY, x2: _liveX, y2: _liveY }, _activeCanvas);
+  }
+}
+
+/* Canvas event setup per page */
+function initCanvasEvents(canvas, pageNum) {
+  function getPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+    var cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (cx - rect.left) / rect.width,
+      y: (cy - rect.top)  / rect.height,
+      screenX: cx, screenY: cy
+    };
+  }
+
+  function onStart(e) {
+    if (!annotTool) return;
+    if (e.touches && e.touches.length > 1) return;
+    e.preventDefault();
+    _drawing       = true;
+    _activeCanvas  = canvas;
+    _activePageNum = pageNum;
+    var pos = getPos(e);
+    _startX = pos.x; _startY = pos.y;
+    _liveX  = pos.x; _liveY  = pos.y;
+
+    if (annotTool === 'text') {
+      _drawing = false;
+      showTextInput(pos.screenX, pos.screenY, pos.x, pos.y, canvas, pageNum);
+      return;
+    }
+    _currentPts = [[pos.x, pos.y]];
+  }
+
+  function onMove(e) {
+    if (!_drawing || _activeCanvas !== canvas) return;
+    if (e.touches && e.touches.length > 1) return;
+    e.preventDefault();
+    var pos = getPos(e);
+    _liveX = pos.x; _liveY = pos.y;
+    if (annotTool === 'pencil' || annotTool === 'highlighter' || annotTool === 'eraser') {
+      _currentPts.push([pos.x, pos.y]);
+    }
+    if (!_rafId) _rafId = requestAnimationFrame(renderLiveStroke);
+  }
+
+  function onEnd(e) {
+    if (!_drawing || _activeCanvas !== canvas) return;
+    _drawing = false;
+    if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
+    var pos;
+    if (e.changedTouches && e.changedTouches.length) {
+      var r = canvas.getBoundingClientRect();
+      pos = { x: (e.changedTouches[0].clientX - r.left) / r.width,
+               y: (e.changedTouches[0].clientY - r.top)  / r.height };
+    } else {
+      pos = { x: _liveX, y: _liveY };
+    }
+    var st = getState(pageNum);
+    var stroke;
+    if (annotTool === 'pencil' || annotTool === 'highlighter' || annotTool === 'eraser') {
+      _currentPts.push([pos.x, pos.y]);
+      stroke = { tool: annotTool, color: annotColor, size: annotSize, pts: _currentPts };
+    } else {
+      stroke = { tool: annotTool, color: annotColor, size: annotSize,
+        x1: _startX, y1: _startY, x2: pos.x, y2: pos.y };
+    }
+    st.strokes.push(stroke);
+    if (st.strokes.length > MAX_UNDO) st.strokes.shift();
+    st.redoStack = [];
+    redrawCanvas(canvas, pageNum);
+    saveState(pageNum);
+  }
+
+  canvas.addEventListener('mousedown',  onStart);
+  canvas.addEventListener('mousemove',  onMove);
+  canvas.addEventListener('mouseup',    onEnd);
+  canvas.addEventListener('mouseleave', function() { if (_drawing && _activeCanvas === canvas) { _drawing = false; if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; } } });
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  canvas.addEventListener('touchmove',  onMove,  { passive: false });
+  canvas.addEventListener('touchend',   onEnd,   { passive: false });
+}
+
+/* ─── Floating text input ─────────────────────────────────────────── */
+var _textPos = null, _textCanvas = null, _textPageNum = null;
+
+function showTextInput(sx, sy, nx, ny, canvas, pageNum) {
+  var inp = document.getElementById('text-input-overlay');
+  inp.style.left    = sx + 'px';
+  inp.style.top     = (sy - 20) + 'px';
+  var cssW = canvas._cssW || parseFloat(canvas.style.width) || 900;
+  inp.style.fontSize = Math.max(12, Math.round((annotSize * 4.5) * (cssW / 900))) + 'px';
+  inp.style.color = annotColor;
+  inp.value = '';
+  inp.classList.add('visible');
+  inp.focus();
+  _textPos = { nx: nx, ny: ny };
+  _textCanvas = canvas; _textPageNum = pageNum;
+}
+
+var _textInputEl = document.getElementById('text-input-overlay');
+_textInputEl.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); _commitText(); }
+  if (e.key === 'Escape') { _cancelText(); }
+});
+_textInputEl.addEventListener('blur', function() {
+  if (this.value.trim()) _commitText(); else _cancelText();
+});
+function _commitText() {
+  var txt = _textInputEl.value.trim();
+  _textInputEl.classList.remove('visible');
+  if (txt && _textCanvas) {
+    var st = getState(_textPageNum);
+    st.strokes.push({ tool: 'text', color: annotColor, size: annotSize,
+      x1: _textPos.nx, y1: _textPos.ny, text: txt });
+    if (st.strokes.length > MAX_UNDO) st.strokes.shift();
+    st.redoStack = [];
+    redrawCanvas(_textCanvas, _textPageNum);
+    saveState(_textPageNum);
+  }
+  _textCanvas = null; _textPageNum = null; _textPos = null;
+}
+function _cancelText() {
+  _textInputEl.classList.remove('visible');
+  _textCanvas = null; _textPageNum = null; _textPos = null;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TOOL SELECTION
+═══════════════════════════════════════════════════════════════════════ */
+function selectTool(tool) {
+  annotTool = tool || null;
+  var bodyClasses = document.body.className
+    .split(' ').filter(function(c) { return c.indexOf('tool-') !== 0; }).join(' ');
+  document.body.className = bodyClasses.trim();
+  if (tool) {
+    document.body.classList.add('tool-active');
+    document.body.classList.add('tool-' + tool);
+  }
+  /* Update all toolbar buttons (desktop + mobile) */
+  document.querySelectorAll('.at-btn[data-tool]').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.tool === (tool || ''));
+  });
+}
+
+document.querySelectorAll('#annot-toolbar .at-btn[data-tool]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var t = btn.dataset.tool;
+    selectTool(annotTool === (t || null) && t !== '' ? null : t);
+  });
+});
+document.querySelectorAll('#mobile-annot-bar .at-btn[data-tool]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var t = btn.dataset.tool;
+    selectTool(annotTool === (t || null) && t !== '' ? null : t);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UNDO / REDO / CLEAR
+═══════════════════════════════════════════════════════════════════════ */
+function _getCurCanvas() {
+  var c = viewerArea.querySelector('.page-container[data-slot="' + curSlot + '"]');
+  if (!c) return null;
+  return { container: c, pageNum: parseInt(c.dataset.page), canvas: c.querySelector('.annot-canvas') };
+}
+
+function doUndo() {
+  var cur = _getCurCanvas(); if (!cur || !cur.canvas) return;
+  var st  = getState(cur.pageNum);
+  if (!st.strokes.length) return;
+  st.redoStack.push(st.strokes.pop());
+  redrawCanvas(cur.canvas, cur.pageNum);
+  saveState(cur.pageNum);
+}
+function doRedo() {
+  var cur = _getCurCanvas(); if (!cur || !cur.canvas) return;
+  var st  = getState(cur.pageNum);
+  if (!st.redoStack.length) return;
+  st.strokes.push(st.redoStack.pop());
+  redrawCanvas(cur.canvas, cur.pageNum);
+  saveState(cur.pageNum);
+}
+function doClear() {
+  var cur = _getCurCanvas(); if (!cur || !cur.canvas) return;
+  if (!confirm('¿Borrar las anotaciones de esta página?')) return;
+  annotState[cur.pageNum] = { strokes: [], redoStack: [] };
+  var ctx = cur.canvas.getContext('2d');
+  var cssW = cur.canvas._cssW || parseFloat(cur.canvas.style.width) || cur.canvas.width;
+  var cssH = cur.canvas._cssH || parseFloat(cur.canvas.style.height) || cur.canvas.height;
+  ctx.clearRect(0, 0, cssW, cssH);
+  saveState(cur.pageNum);
+}
+function doClearAll() {
+  if (!confirm('¿Borrar TODAS las anotaciones del libro?')) return;
+  if (!confirm('Esta acción no se puede deshacer. ¿Continuar?')) return;
+  pages.forEach(function(pn) {
+    annotState[pn] = { strokes: [], redoStack: [] };
+    localStorage.removeItem(ANNOT_PFX + pn);
+  });
+  viewerArea.querySelectorAll('.annot-canvas').forEach(function(canvas) {
+    var ctx = canvas.getContext('2d');
+    var cssW = canvas._cssW || parseFloat(canvas.style.width) || canvas.width;
+    var cssH = canvas._cssH || parseFloat(canvas.style.height) || canvas.height;
+    ctx.clearRect(0, 0, cssW, cssH);
+  });
+  showToast('Anotaciones borradas');
+}
+
+document.getElementById('at-undo').addEventListener('click',   doUndo);
+document.getElementById('at-redo').addEventListener('click',   doRedo);
+document.getElementById('at-clear').addEventListener('click',  doClear);
+document.getElementById('btn-clear-all').addEventListener('click', doClearAll);
+document.getElementById('mat-undo')  && document.getElementById('mat-undo').addEventListener('click',  doUndo);
+document.getElementById('mat-redo')  && document.getElementById('mat-redo').addEventListener('click',  doRedo);
+document.getElementById('mat-clear') && document.getElementById('mat-clear').addEventListener('click', doClear);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COLOR & SIZE
+═══════════════════════════════════════════════════════════════════════ */
+function setColor(c) {
+  annotColor = c;
+  document.getElementById('annot-color').value = c;
+  var cm = document.getElementById('annot-color-m');
+  if (cm) cm.value = c;
+  document.querySelectorAll('.color-swatch').forEach(function(sw) {
+    sw.classList.toggle('active', sw.dataset.color === c);
+  });
+}
+
+document.querySelectorAll('.color-swatch[data-color]').forEach(function(sw) {
+  sw.addEventListener('click', function() { setColor(sw.dataset.color); });
+});
+
+document.getElementById('annot-color').addEventListener('input', function() {
+  annotColor = this.value;
+  var cm = document.getElementById('annot-color-m');
+  if (cm) cm.value = this.value;
+  document.querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('swatch-custom').classList.add('active');
+});
+
+var _cm = document.getElementById('annot-color-m');
+if (_cm) _cm.addEventListener('input', function() {
+  annotColor = this.value;
+  document.getElementById('annot-color').value = this.value;
+});
+
+function updateSizePreview() {
+  var s = Math.round(2 + annotSize * 0.8);
+  s = Math.min(22, Math.max(2, s));
+  var p = document.getElementById('ctx-size-preview');
+  p.style.width  = s + 'px';
+  p.style.height = s + 'px';
+}
+
+document.getElementById('annot-size').addEventListener('input', function() {
+  annotSize = +this.value;
+  updateSizePreview();
+});
+updateSizePreview();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════════════ */
+function pad(n)         { return (n < 10 ? '0' : '') + n; }
+function pageUrl(pn)    { return config.folder + '/' + pad(pn) + '.webp'; }
+function updatePageInfo() {
+  pageInfo.textContent = pages[curSlot - 1] + ' / ' + config.pageCount;
+  var gp = document.getElementById('goto-page');
+  if (gp) gp.value = pages[curSlot - 1];
+}
+var _toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('phn-toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { t.classList.remove('show'); }, 1900);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE BUILDER
+═══════════════════════════════════════════════════════════════════════ */
+var rotations = {};
+
+function buildPages() {
+  document.getElementById('loading-msg').style.display = 'none';
+  pages.forEach(function(pageNum, idx) {
+    var slot = idx + 1;
+    var container = document.createElement('div');
+    container.className    = 'page-container';
+    container.dataset.page = pageNum;
+    container.dataset.slot = slot;
+
+    var ph = document.createElement('div');
+    ph.className = 'page-ph';
+
+    var img = document.createElement('img');
+    img.className  = 'page-img';
+    img.alt        = 'Página ' + pageNum;
+    img.dataset.src = pageUrl(pageNum);
+
+    var canvas = document.createElement('canvas');
+    canvas.className = 'annot-canvas';
+
+    img.onload = function() {
+      if (ph.parentNode) ph.remove();
+      img.style.display = 'block';
+      syncCanvasSize(canvas, container);
+      if (getState(pageNum).strokes.length) redrawCanvas(canvas, pageNum);
+      if (config.hotspotKey) addHotspots(pageNum, container);
+    };
+    img.onerror = function() { if (ph.parentNode) ph.remove(); };
+
+    container.appendChild(ph);
+    container.appendChild(img);
+    container.appendChild(canvas);
+    viewerArea.appendChild(container);
+    initCanvasEvents(canvas, pageNum);
+  });
+
+  updatePageInfo();
+  setupObserver();
+  if (!isMobile) buildThumbs();
+}
+
+/* ─── Lazy load ──────────────────────────────────────────────────── */
+function setupObserver() {
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) loadPage(entry.target);
+    });
+  }, { rootMargin: '400px 0px', threshold: 0 });
+  viewerArea.querySelectorAll('.page-container').forEach(function(c) { obs.observe(c); });
+}
+
+function loadPage(container) {
+  if (container.dataset.loaded) return;
+  container.dataset.loaded = '1';
+  var img = container.querySelector('.page-img');
+  img.src = img.dataset.src;
+}
+
+/* ─── Scroll → active page ───────────────────────────────────────── */
+window.addEventListener('scroll', function() {
+  var mid = window.scrollY + window.innerHeight / 2;
+  viewerArea.querySelectorAll('.page-container').forEach(function(c) {
+    var top = c.getBoundingClientRect().top + window.scrollY;
+    if (top <= mid) {
+      var slot = parseInt(c.dataset.slot);
+      if (slot !== curSlot) {
+        curSlot = slot;
+        updatePageInfo();
+        highlightThumb(slot);
+      }
+    }
+  });
+}, { passive: true });
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THUMBNAILS
+═══════════════════════════════════════════════════════════════════════ */
+function buildThumbs() {
+  thumbsPanel.innerHTML = '';
+  var thumbObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var img = entry.target.querySelector('.thumb-img');
+      if (img && !img.src) img.src = img.dataset.src;
+      thumbObs.unobserve(entry.target);
+    });
+  }, { root: thumbsPanel, rootMargin: '150px', threshold: 0 });
+
+  pages.forEach(function(pageNum, idx) {
+    var slot  = idx + 1;
+    var wrap  = document.createElement('div');
+    wrap.className    = 'thumb-wrap' + (slot === 1 ? ' active' : '');
+    wrap.dataset.slot = slot;
+    wrap.style.animationDelay = Math.min(idx * 15, 300) + 'ms';
+    var card  = document.createElement('div');  card.className = 'thumb-card';
+    var img   = document.createElement('img');
+    img.className   = 'thumb-img'; img.dataset.src = pageUrl(pageNum); img.alt = 'Pág. ' + pageNum;
+    var label = document.createElement('div');
+    label.className = 'thumb-num'; label.textContent = pageNum;
+    card.appendChild(img); wrap.appendChild(card); wrap.appendChild(label);
+    thumbsPanel.appendChild(wrap);
+    thumbObs.observe(wrap);
+    wrap.addEventListener('click', function() { goToSlot(slot); });
+  });
+}
+
+function highlightThumb(slot) {
+  document.querySelectorAll('.thumb-wrap').forEach(function(el) {
+    el.classList.toggle('active', parseInt(el.dataset.slot) === slot);
+  });
+  var active = thumbsPanel.querySelector('.thumb-wrap.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function goToSlot(slot) {
+  var c = viewerArea.querySelector('[data-slot="' + slot + '"]');
+  if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* Go-to-page input */
+function goToPage(pn) {
+  pn = parseInt(pn);
+  if (isNaN(pn)) return;
+  var idx = pages.indexOf(pn);
+  if (idx !== -1) { goToSlot(idx + 1); return; }
+  var nearest = pages.reduce(function(best, p) {
+    return Math.abs(p - pn) < Math.abs(best - pn) ? p : best;
+  }, pages[0]);
+  goToSlot(pages.indexOf(nearest) + 1);
+  showToast('Página ' + pn + ' no disponible, saltando a ' + nearest);
+}
+
+var _gotoEl = document.getElementById('goto-page');
+_gotoEl.setAttribute('max', config.pageCount);
+_gotoEl.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { goToPage(this.value); this.blur(); }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HOTSPOTS
+═══════════════════════════════════════════════════════════════════════ */
+function addHotspots(pageNum, container) {
+  if (typeof PHN_HOTSPOTS === 'undefined' || typeof PHN_CATALOG === 'undefined') return;
+  var map = PHN_HOTSPOTS[config.hotspotKey];
+  if (!map || !map[pageNum]) return;
+  map[pageNum].forEach(function(hs) {
+    var p = PHN_CATALOG[hs.id]; if (!p) return;
+    var div = document.createElement('div');
+    div.className = 'phn-hotspot' + (hs.shape ? ' ' + hs.shape : '');
+    div.style.left   = (hs.x - hs.w / 2) + '%';
+    div.style.top    = (hs.y - hs.h / 2) + '%';
+    div.style.width  = hs.w + '%';
+    div.style.height = hs.h + '%';
+    div.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('popup-img').src   = p.img.replace('../', '');
+      document.getElementById('popup-name').textContent = p.nombre;
+      document.getElementById('popup-desc').textContent = p.propiedades || p.descripcion || '';
+      document.getElementById('popup-cta').href  = 'productos/ficha.html?id=' + encodeURIComponent(hs.id);
+      document.getElementById('phn-product-popup').classList.add('visible');
+    });
+    container.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODES & CONTROLS
+═══════════════════════════════════════════════════════════════════════ */
+/* Read mode */
+var readMode = false;
+function toggleRead() {
+  readMode = !readMode;
+  document.body.classList.toggle('read-mode', readMode);
+  document.getElementById('btn-read').classList.toggle('active', readMode);
+  showToast(readMode ? 'Modo lectura activo · R para salir' : 'Modo lectura desactivado');
+}
+document.getElementById('btn-read').addEventListener('click', toggleRead);
+
+/* Fullscreen */
+document.getElementById('btn-fs').addEventListener('click', function() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+  }
+});
+document.addEventListener('fullscreenchange', function() {
+  document.getElementById('btn-fs').classList.toggle('active', !!document.fullscreenElement);
+});
+
+/* Rotation */
+document.getElementById('btn-rotate').addEventListener('click', function() {
+  var c = viewerArea.querySelector('.page-container[data-slot="' + curSlot + '"]');
+  if (!c) return;
+  var pn = parseInt(c.dataset.page);
+  rotations[pn] = ((rotations[pn] || 0) + 90) % 360;
+  c.style.transform       = 'rotate(' + rotations[pn] + 'deg)';
+  c.style.transformOrigin = 'center center';
+});
+
+/* Navigation */
+document.getElementById('btn-prev').addEventListener('click', function() {
+  if (curSlot > 1) goToSlot(curSlot - 1);
+});
+document.getElementById('btn-next').addEventListener('click', function() {
+  if (curSlot < pages.length) goToSlot(curSlot + 1);
+});
+
+/* Print */
+document.getElementById('btn-print').addEventListener('click', function() {
+  window.print();
+});
+
+/* Download current page as PNG */
+document.getElementById('btn-download-page').addEventListener('click', function() {
+  var c = viewerArea.querySelector('.page-container[data-slot="' + curSlot + '"]');
+  if (!c) return;
+  var img    = c.querySelector('.page-img');
+  var canvas = c.querySelector('.annot-canvas');
+  if (!img || !img.naturalWidth) { showToast('La página aún no cargó'); return; }
+  var offscreen = document.createElement('canvas');
+  offscreen.width  = img.naturalWidth;
+  offscreen.height = img.naturalHeight;
+  var ctx = offscreen.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  if (canvas && canvas._cssW) {
+    var cssW = canvas._cssW, cssH = canvas._cssH;
+    var tempC = document.createElement('canvas');
+    tempC.width  = img.naturalWidth;
+    tempC.height = img.naturalHeight;
+    var tctx = tempC.getContext('2d');
+    tctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(tempC, 0, 0);
+  }
+  offscreen.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a   = document.createElement('a');
+    a.href     = url;
+    a.download = 'pagina-' + pages[curSlot - 1] + '.png';
+    a.click();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
+  }, 'image/png');
+});
+
+/* Back */
+document.getElementById('btn-back').addEventListener('click', function() { history.back(); });
+
+/* Window resize */
+var _resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(resizeAllCanvases, 200);
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(ev) {
+  var tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  /* Navigation */
+  if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
+    if (curSlot < pages.length) goToSlot(curSlot + 1);
+  }
+  if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
+    if (curSlot > 1) goToSlot(curSlot - 1);
+  }
+
+  /* Escape */
+  if (ev.key === 'Escape') {
+    document.getElementById('phn-product-popup').classList.remove('visible');
+    selectTool(null);
+  }
+
+  /* Zoom */
+  if (ev.ctrlKey && (ev.key === '+' || ev.key === '=')) { ev.preventDefault(); changeZoom(+ZOOM_STEP); }
+  if (ev.ctrlKey &&  ev.key === '-')  { ev.preventDefault(); changeZoom(-ZOOM_STEP); }
+  if (ev.ctrlKey &&  ev.key === '0')  { ev.preventDefault(); zoomLevel = 1.0; applyZoom(); }
+
+  /* Undo/Redo */
+  if (ev.ctrlKey && !ev.shiftKey && ev.key === 'z') { ev.preventDefault(); doUndo(); }
+  if (ev.ctrlKey &&  ev.shiftKey && (ev.key === 'z' || ev.key === 'Z')) { ev.preventDefault(); doRedo(); }
+
+  /* Modes */
+  if (!ev.ctrlKey && !ev.shiftKey) {
+    if (ev.key === 'r' || ev.key === 'R') toggleRead();
+    if (ev.key === 'f' || ev.key === 'F') document.getElementById('btn-fs').click();
+
+    /* Tools */
+    if (ev.key === 's' || ev.key === 'S') selectTool(null);
+    if (ev.key === 'p' || ev.key === 'P') selectTool(annotTool === 'pencil'      ? null : 'pencil');
+    if (ev.key === 'h' || ev.key === 'H') selectTool(annotTool === 'highlighter' ? null : 'highlighter');
+    if (ev.key === 't' || ev.key === 'T') selectTool(annotTool === 'text'        ? null : 'text');
+    if (ev.key === 'e' || ev.key === 'E') selectTool(annotTool === 'eraser'      ? null : 'eraser');
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════════ */
+applyZoom();
+buildPages();
+</script>
+
+<!-- Hotspots & catalogue data -->
+<script src="src/features/catalogo-hotspots.js"></script>
+<script src="src/features/productos/data.js"></script>
+
+<!-- Bottom product panel (catalogs only) -->
+<script>
+(function(){
+  if (!config || !config.hotspotKey) return;
+  if (typeof PHN_CATALOG === 'undefined') return;
+
+  var cosmeticKeys = ['VR-4 GEL','DB-6 CREMA','COLAGENO 80/20','COLAGENO 50/50','MASCARILLA','F.VIT-GEL'];
+  var isCosm = config.hotspotKey === 'cosmeticos';
+  var keys   = Object.keys(PHN_CATALOG).filter(function(k) {
+    return isCosm ? cosmeticKeys.indexOf(k) !== -1 : cosmeticKeys.indexOf(k) === -1;
+  });
+
+  var style = document.createElement('style');
+  style.textContent = '#phn-prod-panel{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#1a1a1a;border-top:2px solid #70B62F;transform:translateY(calc(100% - 48px));transition:transform .35s cubic-bezier(.4,0,.2,1)}#phn-prod-panel.open{transform:translateY(0)}#phn-prod-panel-toggle{width:100%;height:48px;background:#1a1a1a;border:none;color:#fff;font-size:.88em;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;letter-spacing:.03em}#phn-prod-panel-toggle:hover{background:#222}#phn-prod-panel-toggle .arrow{transition:transform .3s;font-size:1.2em}#phn-prod-panel.open .arrow{transform:rotate(180deg)}#phn-prod-grid{max-height:320px;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}#phn-prod-grid::-webkit-scrollbar{width:4px}#phn-prod-grid::-webkit-scrollbar-thumb{background:#444;border-radius:2px}.ppanel-card{background:#222;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none;color:#fff;display:flex;flex-direction:column}.ppanel-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(112,182,47,.3)}.ppanel-img-wrap{position:relative;background:#2a2a2a;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}.ppanel-img-wrap img{max-width:85%;max-height:85%;object-fit:contain}.ppanel-overlay{position:absolute;inset:0;background:rgba(112,182,47,.85);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s}.ppanel-card:hover .ppanel-overlay{opacity:1}.ppanel-overlay span{color:#fff;font-size:.75em;font-weight:700;padding:6px 14px;border:2px solid #fff;border-radius:999px;letter-spacing:.04em}.ppanel-name{padding:8px 10px;font-size:.72em;font-weight:600;text-align:center;line-height:1.3}@media(max-width:768px){#phn-prod-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;padding:12px 14px;max-height:260px}}';
+  document.head.appendChild(style);
+
+  var panel = document.createElement('div'); panel.id = 'phn-prod-panel';
+  var toggleBtn = document.createElement('button'); toggleBtn.id = 'phn-prod-panel-toggle';
+  toggleBtn.innerHTML = '<span class="arrow">▲</span> Productos del catálogo';
+  var grid = document.createElement('div'); grid.id = 'phn-prod-grid';
+
+  keys.forEach(function(k) {
+    var p = PHN_CATALOG[k];
+    var a = document.createElement('a');
+    a.className = 'ppanel-card';
+    a.href = 'productos/ficha.html?id=' + encodeURIComponent(k);
+    a.innerHTML = '<div class="ppanel-img-wrap"><img src="' + p.img.replace('../','') + '" alt="' + p.nombre + '" loading="lazy"><div class="ppanel-overlay"><span>Ver más</span></div></div><div class="ppanel-name">' + p.nombre + '</div>';
+    grid.appendChild(a);
+  });
+
+  panel.appendChild(toggleBtn);
+  panel.appendChild(grid);
+  document.body.appendChild(panel);
+  toggleBtn.addEventListener('click', function() { panel.classList.toggle('open'); });
+}());
+</script>
+
+<script src="compra/js/footer.js" data-root=""></script>
+</body>
+</html>

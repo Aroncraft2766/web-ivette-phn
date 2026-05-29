@@ -58,15 +58,15 @@ window.EXP_CONTENT = {
   backText: "← Volver al inicio",
 
   // ── BRANDING ──────────────────────────────────────────────────────────────
-  logoUrl:  "../../assets/logos/Logo PHN.webp",
+  logoUrl:  "../../public/images/logos/Logo PHN.webp",
   logoLink: "../../index.html",
   logoAlt:  "PHN — Proher Natura",
 
 
   products: [
-    { key: 'LH', nombre: 'F.VIT LH', img: '../../productos/imagen14.webp' },
-    { key: 'FIBRA', nombre: 'FIBRA F.VIT', img: '../../productos/imagen13.webp' },
-    { key: 'G-6', nombre: 'G6 CAPS', img: '../../productos/imagen3.webp' },
+    { key: 'LH', nombre: 'F.VIT LH', img: '../../public/images/productos/imagen14.webp' },
+    { key: 'FIBRA', nombre: 'FIBRA F.VIT', img: '../../public/images/productos/imagen13.webp' },
+    { key: 'G-6', nombre: 'G6 CAPS', img: '../../public/images/productos/imagen3.webp' },
   ],
 
 };

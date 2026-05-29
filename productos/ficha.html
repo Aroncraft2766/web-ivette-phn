@@ -210,7 +210,7 @@
     <a href="../index.html" style="flex-shrink:0;display:flex;align-items:center;">
       <img src="../public/images/logos/Logo PHN.webp" alt="PHN — Proher Natura"
            style="height:44px;width:auto;object-fit:contain;"
-           onerror="this.src='../public/images/logos/Logo PHN.png';" />
+           onerror="this.style.display='none';" />
     </a>
 
     <!-- Links desktop -->
@@ -635,7 +635,7 @@ function agregarAlCarrito() {
     var cart = JSON.parse(localStorage.getItem('phn-cart') || '[]');
     var existing = cart.find(function(i){ return i.name === _currentId; });
     if (existing) { existing.qty += 1; }
-    else { cart.push({ name: _currentId, qty: 1, img: 'productos/' + p.img, price: p.precio || '' }); }
+    else { cart.push({ name: _currentId, qty: 1, img: p.img.replace('../', ''), price: p.precio || '' }); }
     localStorage.setItem('phn-cart', JSON.stringify(cart));
     actualizarBadge();
     var btn = document.getElementById('btn-cart');
