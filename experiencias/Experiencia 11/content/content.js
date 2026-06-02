@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CONTENIDO EDITABLE — Experiencia 11: EXPERIENCIA TRÁNSITO INTESTINAL VITAL
  * Edita este archivo para cambiar textos, precio, imagen y número de WhatsApp.
  */
@@ -21,7 +21,7 @@ window.EXP_CONTENT = {
     price:    "",           // ej. "$1,500 MXN" — deja vacío para ocultar
     badge:    "3 meses",
 
-    imageUrl:      "../Experiencia 1/content/images/producto.webp",
+    imageUrl:      "../../public/images/experiencias/Experiencia 1/imagen.webp",
     imageFallback: "transito intestinal.png",
     imageAlt:      "EXPERIENCIA TRÁNSITO INTESTINAL VITAL — PHN",
 

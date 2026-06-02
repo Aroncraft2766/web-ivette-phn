@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SITE_CONTENT — fuente única de verdad para todo el contenido editable.
  * Edita este archivo para cambiar textos, imágenes, links y fechas.
  * Consulta CLAUDE.md para saber exactamente qué campo tocar en cada caso.
@@ -7,7 +7,7 @@ window.SITE_CONTENT = {
 
   // ─── META ────────────────────────────────────────────────────────────────
   meta: {
-    title: "Ale-Natura",
+    title: "Ivette-Natura",
     description: "Experiencias de nutrición natural PHN. Transforma tu salud y bienestar de forma natural con la Nutrióloga Ale.",
     faviconUrl: "public/images/logos/Logo PHN.webp",
   },
@@ -410,7 +410,7 @@ window.SITE_CONTENT = {
 window.SITE_CONTENT_EN = {
 
   meta: {
-    title: "Ale-Natura",
+    title: "Ivette-Natura",
     description: "PHN natural nutrition experiences. Transform your health and wellbeing naturally with Nutritionist Ale.",
     faviconUrl: "public/images/logos/Logo PHN.webp",
   },

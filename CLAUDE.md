@@ -24,7 +24,7 @@ Cada página de compra tiene su propio `experiencias/Experiencia X/content/conte
 | `CLAUDE.md` | Esta guía | ✅ **Actualizar siempre** que se agregue un archivo, cambie una regla de edición o se introduzca un nuevo patrón |
 | `compra/js/video-content.js` | Textos de los 3 videos en todas las páginas de compra (ES + EN) | ✅ Sí |
 | `compra/js/translations.js` | Traducciones al inglés de todas las páginas de compra (título, descripción, lista) | ✅ Sí |
-| `compra/js/scripts.js` | Lógica compartida: slider móvil, botón traducir, orden del carrito | ⚠️ Solo al final del archivo |
+| `compra/js/scripts.js` | Lógica compartida: slider móvil, botón traducir, orden del carrito, y loop de cola de cápsulas 2 y 3 (reproduce el video completo y luego repite solo los últimos 3 s para evitar el fotograma negro; identifica los videos por URL `capsula_2_`/`capsula_3_`) | ⚠️ Solo al final del archivo |
 | `compra/js/footer.js` | Footer completo compartido. Se carga con `<script data-root="../../">` en compra.html y `<script data-root="">` en raíz | ✅ Sí — editar datos directamente en el objeto `data` |
 | `catalogo.html` | Landing de catálogo con 2 banners: Productos y Cosméticos | ✅ Sí — editar banners, títulos |
 | `cosmeticos.html` | Página de productos cosméticos (VR-4 GEL, DB-6 CREMA, COLAGENO 80/20, COLAGENO 50/50, MASCARILLA) | ⚠️ Misma estructura que `productos.html` |
@@ -320,7 +320,7 @@ Todos los assets del sitio viven bajo `public/` o en las carpetas raíz `animaci
 | Galería producto | `public/images/productos/gallery/<clave>/` | Prefijo en gallery-data.js: `../public/images/productos/gallery/` |
 | Imágenes experiencias | `public/images/experiencias/Experiencia X/` | `../../public/images/experiencias/Experiencia X/` |
 | Libros/catálogos | `public/libros/<nombre>/pages/01.webp` | — |
-| Videos cápsulas | `animacion/capsula 1.mp4`, `capsula 2.mp4`, `capsula 3.mp4` | `../../animacion/capsula X.mp4` |
+| Videos cápsulas | Servidos desde Cloudinary en los 13 `compra.html` (la carpeta local `animacion/` está en `.gitignore` y NO se despliega). Cápsula 1 sin recorte; cápsulas 2 y 3 con transformación `eo_14.0` que recorta el último ~1 s (fotograma negro) | URLs `https://res.cloudinary.com/dfi2ugopz/video/upload/...` |
 | Imagen fallback | `imagen.webp` (raíz) | `../../imagen.webp` — fallback de error en compra.html |
 
 ---

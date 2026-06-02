@@ -243,3 +243,60 @@
     initPHNMobileSlider();
   }
 })();
+
+/* ── PHN: loop de los últimos 3s en cápsulas 2 y 3 ──────────────────────────
+   Reproduce el video completo una vez (0–~14s) y luego repite solo los
+   últimos 3 s, sin reiniciar al principio ni mostrar el fotograma negro.
+   La cápsula 1 conserva su loop completo normal. Los videos se identifican
+   por su URL (capsula_2_ / capsula_3_). Compartido por las 13 compra.html. */
+(function(){
+  var LOOP_TAIL = 3;        /* segundos finales que se repiten */
+  var EDGE = 0.18;          /* margen antes del final para saltar y evitar negro */
+
+  function srcOf(v){
+    var s = v.querySelector('source');
+    var src = (s && s.getAttribute('src')) || v.currentSrc || v.src || '';
+    return src;
+  }
+  function isTailVideo(v){
+    return /capsula_2_|capsula_3_/.test(srcOf(v));
+  }
+  function setupTailLoop(v){
+    if(v.__phnTailLoop) return;
+    v.__phnTailLoop = true;
+    v.loop = false;         /* desactivamos el loop nativo: lo controlamos a mano */
+
+    function jumpToTail(){
+      var d = v.duration;
+      if(!isFinite(d) || d <= LOOP_TAIL) return;
+      try { v.currentTime = d - LOOP_TAIL; } catch(e){}
+      if(v.paused){
+        var p = v.play();
+        if(p && p.catch) p.catch(function(){});
+      }
+    }
+
+    /* Si el navegador llega a disparar 'ended', volvemos a la cola */
+    v.addEventListener('ended', jumpToTail);
+
+    /* Salto preventivo justo antes del final para que nunca se vea el negro */
+    v.addEventListener('timeupdate', function(){
+      var d = v.duration;
+      if(!isFinite(d) || d <= LOOP_TAIL) return;
+      if(v.currentTime >= d - EDGE){ jumpToTail(); }
+    });
+  }
+
+  function init(){
+    var vids = document.querySelectorAll('video');
+    for(var i = 0; i < vids.length; i++){
+      if(isTailVideo(vids[i])) setupTailLoop(vids[i]);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
